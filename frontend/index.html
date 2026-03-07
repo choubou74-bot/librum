@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Du peuple, au peuple.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0e0c09;
+  --parchment: #f9f4ec;
+  --gold: #b8972a;
+  --gold-light: #d4b04a;
+  --crimson: #7a1e1e;
+  --slate: #2c3040;
+  --mist: #e8e2d8;
+  --text: #2a2520;
+  --text-muted: #7a7068;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--parchment);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ========== GRAIN OVERLAY ========== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.6;
+}
+
+/* ========== NAV ========== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.5rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(249,244,236,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(184,151,42,0.2);
+  transition: all 0.3s;
+}
+
+.nav-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.15em;
+  text-decoration: none;
+}
+
+.nav-logo span {
+  color: var(--gold);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--gold); }
+
+.btn-nav {
+  padding: 0.6rem 1.6rem;
+  background: var(--ink);
+  color: var(--parchment) !important;
+  border-radius: 2px;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.12em !important;
+  transition: background 0.2s !important;
+}
+
+.btn-nav:hover { background: var(--gold) !important; color: var(--ink) !important; }
+
+/* ========== HERO ========== */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 8rem 4rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  right: -10%;
+  top: 10%;
+  width: 55vw;
+  height: 80vh;
+  background: radial-gradient(ellipse at center, rgba(184,151,42,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-text {
+  max-width: 580px;
+  animation: fadeUp 1s ease 0.2s both;
+}
+
+.hero-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--gold);
+}
+
+h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(3.5rem, 6vw, 6rem);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+h1 .accent {
+  color: var(--gold);
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 1.1em;
+}
+
+.hero-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+  line-height: 1.5;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text);
+  margin-bottom: 3rem;
+  max-width: 480px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  padding: 1rem 2.5rem;
+  background: var(--ink);
+  color: var(--parchment);
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 2px solid var(--ink);
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(184,151,42,0.3);
+}
+
+.btn-secondary {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s;
+}
+
+.btn-secondary:hover { color: var(--gold); }
+
+/* ========== HERO VISUAL ========== */
+.hero-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  animation: fadeIn 1.2s ease 0.5s both;
+}
+
+.book-stack {
+  position: relative;
+  width: 320px;
+  height: 420px;
+}
+
+.book {
+  position: absolute;
+  border-radius: 3px 8px 8px 3px;
+  box-shadow: -4px 8px 24px rgba(0,0,0,0.2);
+}
+
+.book-1 {
+  width: 180px;
+  height: 260px;
+  background: linear-gradient(135deg, #1a2744 0%, #0e1830 100%);
+  top: 80px;
+  left: 60px;
+  transform: rotate(-8deg);
+}
+
+.book-2 {
+  width: 160px;
+  height: 230px;
+  background: linear-gradient(135deg, #7a1e1e 0%, #4a1010 100%);
+  top: 120px;
+  left: 100px;
+  transform: rotate(2deg);
+}
+
+.book-3 {
+  width: 170px;
+  height: 250px;
+  background: linear-gradient(135deg, var(--gold) 0%, #8a6a18 100%);
+  top: 60px;
+  left: 140px;
+  transform: rotate(12deg);
+}
+
+.book-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 3px 0 0 3px;
+}
+
+.book-title-text {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Cagnotte flottante */
+.cagnotte-badge {
+  position: absolute;
+  top: 20px;
+  right: 0px;
+  background: var(--parchment);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  animation: float 3s ease-in-out infinite;
+  min-width: 180px;
+}
+
+.cagnotte-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.cagnotte-amount {
+  font-family: 'Cinzel', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--gold);
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.cagnotte-amount .currency { font-size: 1rem; }
+
+.cagnotte-bar-wrap {
+  height: 4px;
+  background: var(--mist);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cagnotte-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 2px;
+  transition: width 2s ease;
+}
+
+.cagnotte-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* ========== STATS STRIP ========== */
+.stats-strip {
+  padding: 3rem 4rem;
+  background: var(--ink);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-num {
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(249,244,236,0.5);
+  margin-top: 0.3rem;
+}
+
+/* ========== FEATURES ========== */
+.features {
+  padding: 8rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+
+.section-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.section-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.feature-card {
+  padding: 3rem 2.5rem;
+  background: white;
+  border: 1px solid var(--mist);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.feature-card:hover::before { transform: scaleX(1); }
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: var(--gold);
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.feature-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.feature-desc {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+/* ========== HOW IT WORKS ========== */
+.how-it-works {
+  background: var(--ink);
+  padding: 8rem 4rem;
+  position: relative;
+}
+
+.how-it-works::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(184,151,42,0.06) 0%, transparent 60%);
+}
+
+.how-it-works .section-title { color: var(--parchment); }
+.how-it-works .section-eyebrow { color: var(--gold); }
+.how-it-works .section-desc { color: rgba(249,244,236,0.5); }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.step {
+  text-align: center;
+  position: relative;
+}
+
+.step::after {
+  content: '→';
+  position: absolute;
+  top: 1.8rem;
+  right: -1.5rem;
+  color: rgba(184,151,42,0.3);
+  font-size: 1.5rem;
+}
+
+.step:last-child::after { display: none; }
+
+.step-num {
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold);
+  opacity: 0.3;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.step-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--parchment);
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.step-desc {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: rgba(249,244,236,0.5);
+}
+
+/* ========== CAGNOTTE SECTION ========== */
+.cagnotte-section {
+  padding: 8rem 4rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.big-counter {
+  margin: 3rem 0;
+  padding: 4rem;
+  background: white;
+  border: 1px solid var(--mist);
+  border-top: 4px solid var(--gold);
+}
+
+.big-counter-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.big-counter-num {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  color: var(--gold);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.counter-animating {
+  animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); color: var(--gold-light); }
+  100% { transform: scale(1); }
+}
+
+.big-bar-wrap {
+  height: 8px;
+  background: var(--mist);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1.5rem 0 1rem;
+}
+
+.big-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 4px;
+  transition: width 2s ease;
+  width: 0%;
+}
+
+/* ========== MODERATION ========== */
+.moderation-section {
+  padding: 8rem 4rem;
+  background: #f0ece4;
+}
+
+.mod-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  max-width: 1100px;
+  margin: 4rem auto 0;
+  align-items: center;
+}
+
+.grade-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.grade-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-left: 3px solid var(--gold);
+  transition: all 0.2s;
+}
+
+.grade-item:hover { transform: translateX(6px); box-shadow: 4px 0 16px rgba(0,0,0,0.06); }
+
+.grade-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(184,151,42,0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.grade-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.grade-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ========== CTA ========== */
+.cta {
+  padding: 10rem 4rem;
+  text-align: center;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: 'LIBRUM';
+  position: absolute;
+  font-family: 'Cinzel', serif;
+  font-size: 20vw;
+  font-weight: 700;
+  color: rgba(255,255,255,0.025);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.cta .section-title { color: var(--parchment); font-size: clamp(2.5rem, 5vw, 4rem); }
+
+.cta-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-style: italic;
+  color: var(--gold);
+  margin: 2rem 0 3rem;
+}
+
+.btn-cta {
+  padding: 1.2rem 3rem;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-block;
+}
+
+.btn-cta:hover {
+  background: var(--parchment);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(184,151,42,0.4);
+}
+
+/* ========== FOOTER ========== */
+footer {
+  padding: 3rem 4rem;
+  background: #07060a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.footer-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgba(249,244,236,0.4);
+  letter-spacing: 0.2em;
+}
+
+.footer-motto {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(184,151,42,0.5);
+}
+
+.footer-legal {
+  font-size: 0.72rem;
+  color: rgba(249,244,236,0.25);
+  letter-spacing: 0.05em;
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 900px) {
+  nav { padding: 1.2rem 2rem; }
+  .hero { grid-template-columns: 1fr; padding: 6rem 2rem 3rem; }
+  .hero-visual { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr 1fr; }
+  .step::after { display: none; }
+  .mod-grid { grid-template-columns: 1fr; }
+  .features, .cagnotte-section, .how-it-works, .moderation-section, .cta { padding: 5rem 2rem; }
+  .stats-strip { padding: 2.5rem 2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">LIBR<span>UM</span></a>
+  <ul class="nav-links">
+    <li><a href="#catalogue">Catalogue</a></li>
+    <li><a href="#comment">Comment ça marche</a></li>
+    <li><a href="#moderation">Gouvernance</a></li>
+    <li><a href="#" class="btn-nav">Commencer à écrire</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-eyebrow">Plateforme d'édition libre</div>
+    <h1>Écrire.<br>Publier.<br><span class="accent">Exister.</span></h1>
+    <p class="hero-subtitle">Du peuple, au peuple. Zéro centime.</p>
+    <p class="hero-desc">
+      LIBRUM est la seule plateforme où vous écrivez, publiez, et pouvez voir votre livre imprimé grâce à votre communauté — sans jamais payer, sans intermédiaire, sans compromis.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Publier mon livre</a>
+      <a href="#comment" class="btn-secondary">Comment ça marche →</a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="book-stack">
+      <div class="book book-1">
+        <div class="book-spine"></div>
+        <div class="book-title-text">L'ODYSSÉE OUBLIÉE</div>
+      </div>
+      <div class="book book-2">
+        <div class="book-spine"></div>
+        <div class="book-title-text">LE DERNIER ÉTÉ</div>
+      </div>
+      <div class="book book-3">
+        <div class="book-spine"></div>
+        <div class="book-title-text">VOIX DES OMBRES</div>
+      </div>
+    </div>
+
+    <div class="cagnotte-badge">
+      <div class="cagnotte-label">Cagnotte en direct</div>
+      <div class="cagnotte-amount">
+        <span class="currency">€</span>
+        <span id="live-amount">0</span>
+      </div>
+      <div class="cagnotte-bar-wrap">
+        <div class="cagnotte-bar" id="live-bar"></div>
+      </div>
+      <div class="cagnotte-sub">sur 50€ · 23 donateurs</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <span class="stat-num" data-target="2847">0</span>
+    <div class="stat-label">Oeuvres publiées</div>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" data-target="12394">0</span>
+    <div class="stat-label">Auteurs inscrits</div>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" data-target="48">0</span>
+    <div class="stat-label">Livres imprimés</div>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" data-target="94">0</span>
+    <div class="stat-label">Langues couvertes</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="catalogue">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Ce que vous obtenez</div>
+    <h2 class="section-title">Tout le nécessaire.<br>Rien de superflu.</h2>
+    <p class="section-desc">Une plateforme construite pour l'auteur, pas pour l'investisseur.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <div class="feature-title">Éditeur Intégré</div>
+      <p class="feature-desc">Roman, nouvelle, scénario — un éditeur WYSIWYG complet avec sauvegarde automatique, historique des versions et mode focus.</p>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <div class="feature-title">IA Co-Auteur</div>
+      <p class="feature-desc">Anti-blocage, reformulation, analyse de cohérence, génération de couverture, traduction en 10 langues. L'IA comme catalyseur, jamais comme substitut.</p>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div class="feature-title">Vote Démocratique</div>
+      <p class="feature-desc">5 votes par mois, ciblés par œuvre. Pondérés selon l'ancienneté. Transparents. Le mérite décide, pas l'algorithme.</p>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="feature-title">Cagnotte Live</div>
+      <p class="feature-desc">Les lecteurs soutiennent directement votre œuvre. Le compteur s'incrémente en temps réel. Quand le seuil est atteint — impression.</p>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      <div class="feature-title">Scénarios & Scripts</div>
+      <p class="feature-desc">Format Hollywood natif. Export PDF mise en page WGA. Final Draft (.fdx) supporté. Pour les scénaristes sérieux, gratuitement.</p>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="feature-title">Modération Équitable</div>
+      <p class="feature-desc">IA + modérateurs bénévoles gradés + admin. Droit de contestation. Carton system transparent. La liberté protégée, pas supprimée.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="comment">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Le processus</div>
+    <h2 class="section-title">Simple comme écrire.</h2>
+    <p class="section-desc">De la page blanche au livre imprimé en quatre étapes.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div class="step-title">Écrivez</div>
+      <p class="step-desc">Directement sur la plateforme. L'IA vous accompagne si vous le souhaitez. Sauvegarde automatique.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div class="step-title">Publiez</div>
+      <p class="step-desc">En un clic. Horodatage automatique — preuve d'antériorité. Watermark PDF discret. Immédiat.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div class="step-title">La communauté vote</div>
+      <p class="step-desc">Notes, commentaires, dons ciblés. Le compteur monte en temps réel. Vous voyez votre soutien se construire.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <div class="step-title">Le livre existe</div>
+      <p class="step-desc">Seuil atteint → impression automatique. Livré à votre porte. Vous entrez au Livre d'Or.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CAGNOTTE DEMO -->
+<section class="cagnotte-section">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">En ce moment</div>
+    <h2 class="section-title">La cagnotte globale LIBRUM</h2>
+    <p class="section-desc">Chaque don compte. Chaque œuvre progresse. En direct.</p>
+  </div>
+
+  <div class="big-counter reveal">
+    <div class="big-counter-label">Cagnotte totale en cours</div>
+    <div class="big-counter-num">
+      <span>€</span>
+      <span id="big-counter">0</span>
+    </div>
+    <div class="big-bar-wrap">
+      <div class="big-bar" id="big-bar"></div>
+    </div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem;">
+      Répartie sur <strong>47 œuvres</strong> en attente d'impression
+    </p>
+  </div>
+</section>
+
+<!-- MODERATION -->
+<section class="moderation-section" id="moderation">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Gouvernance</div>
+    <h2 class="section-title">Du peuple, par le peuple.</h2>
+    <p class="section-desc">La modération n'est pas un département — c'est une vocation communautaire.</p>
+  </div>
+
+  <div class="mod-grid">
+    <div class="reveal">
+      <p style="font-size:1rem;line-height:1.9;color:var(--text);margin-bottom:2rem;">
+        Les modérateurs bénévoles de LIBRUM sont des membres qui ont gagné la confiance de la communauté par leur ancienneté, leur engagement, et leur bonne foi. Ils reçoivent des grades progressifs, chacun avec des pouvoirs précis et des responsabilités claires.
+      </p>
+      <p style="font-size:1rem;line-height:1.9;color:var(--text);">
+        Aucune décision définitive n'est jamais unilatérale. Tout auteur sanctionné peut contester. La transparence est totale. Le dossier reste ouvert.
+      </p>
+    </div>
+
+    <div class="grade-list reveal">
+      <div class="grade-item">
+        <div>
+          <div class="grade-badge">M1</div>
+        </div>
+        <div>
+          <div class="grade-name">Sentinelle</div>
+          <div class="grade-desc">Signaler en priorité. Accès à la file de modération.</div>
+        </div>
+      </div>
+      <div class="grade-item">
+        <div><div class="grade-badge">M2</div></div>
+        <div>
+          <div class="grade-name">Gardien</div>
+          <div class="grade-desc">Flouter temporairement un contenu (48h).</div>
+        </div>
+      </div>
+      <div class="grade-item">
+        <div><div class="grade-badge">M3</div></div>
+        <div>
+          <div class="grade-name">Modérateur</div>
+          <div class="grade-desc">Bloquer une publication. Ouvrir une discussion.</div>
+        </div>
+      </div>
+      <div class="grade-item">
+        <div><div class="grade-badge">M4</div></div>
+        <div>
+          <div class="grade-name">Modérateur Senior</div>
+          <div class="grade-desc">Suspension temporaire d'un membre.</div>
+        </div>
+      </div>
+      <div class="grade-item">
+        <div><div class="grade-badge">M5</div></div>
+        <div>
+          <div class="grade-name">Archonte</div>
+          <div class="grade-desc">Suppression définitive. Proposition de bannissement à vie.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="reveal">
+    <h2 class="section-title">Votre livre mérite d'exister.</h2>
+    <p class="cta-quote">« Qui ne tente rien n'aura rien. »</p>
+    <a href="#" class="btn-cta">Commencer maintenant — Gratuit</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">LIBRUM</div>
+  <div class="footer-motto">Du peuple, au peuple. Pour toujours.</div>
+  <div class="footer-legal">© 2026 LIBRUM · Aucune commission. Jamais. · RGPD conforme</div>
+</footer>
+
+<script>
+// ========== LIVE CAGNOTTE ANIMATION ==========
+function animateTo(el, target, duration = 2000, prefix = '') {
+  const start = parseInt(el.textContent.replace(/[^0-9]/g,'')) || 0;
+  const startTime = performance.now();
+  const update = (now) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (target - start) * ease);
+    el.textContent = current.toLocaleString('fr-FR');
+    if (progress < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+// Cagnotte live demo
+let liveAmount = 0;
+const liveTarget = 34.50;
+const liveThreshold = 50;
+
+setTimeout(() => {
+  const el = document.getElementById('live-amount');
+  const bar = document.getElementById('live-bar');
+  let current = 0;
+  const interval = setInterval(() => {
+    current = Math.min(current + 0.87, liveTarget);
+    el.textContent = current.toFixed(2);
+    bar.style.width = (current / liveThreshold * 100) + '%';
+    if (current >= liveTarget) clearInterval(interval);
+  }, 30);
+}, 800);
+
+// Big counter
+setTimeout(() => {
+  const bigEl = document.getElementById('big-counter');
+  const bigBar = document.getElementById('big-bar');
+  if (bigEl) {
+    animateTo(bigEl, 1243, 3000);
+    setTimeout(() => bigBar.style.width = '62%', 500);
+  }
+}, 1200);
+
+// ========== STATS COUNTERS ==========
+const statEls = document.querySelectorAll('[data-target]');
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateTo(e.target, parseInt(e.target.dataset.target), 2500);
+      statsObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+statEls.forEach(el => statsObserver.observe(el));
+
+// ========== SCROLL REVEAL ==========
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => revealObserver.observe(el));
+
+// ========== NAV SCROLL ==========
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  nav.style.padding = window.scrollY > 50 ? '1rem 4rem' : '1.5rem 4rem';
+});
+
+// ========== CAGNOTTE LIVE INCRÉMENTS (DEMO) ==========
+setInterval(() => {
+  const el = document.getElementById('big-counter');
+  if (el) {
+    const current = parseInt(el.textContent.replace(/\s/g, '')) || 0;
+    const increment = Math.floor(Math.random() * 3) + 1;
+    animateTo(el, current + increment, 800);
+    el.classList.add('counter-animating');
+    setTimeout(() => el.classList.remove('counter-animating'), 800);
+  }
+}, 4000);
+</script>
+</body>
+</html>

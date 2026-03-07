@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Œuvre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="currency.js"></script>
+<style>
+:root{--ink:#0e0c09;--parchment:#f9f4ec;--gold:#b8972a;--gold-light:#d4b04a;--mist:#e8e2d8;--text:#2a2520;--text-muted:#7a7068;--border:#ddd8cf;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--parchment);color:var(--text);}
+
+nav{position:sticky;top:0;z-index:50;background:rgba(249,244,236,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 3rem;height:56px;display:flex;align-items:center;gap:2rem;}
+.nav-logo{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:0.15em;}
+.nav-logo span{color:var(--gold);}
+.nav-spacer{flex:1;}
+.nav-link{font-size:0.78rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;}
+.nav-btn{padding:0.45rem 1.2rem;background:var(--ink);color:var(--parchment);font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-decoration:none;}
+
+/* ── HERO ── */
+.work-hero{background:var(--ink);padding:4rem 3rem;}
+.work-hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:200px 1fr 300px;gap:3rem;align-items:start;}
+.work-cover-big{width:200px;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.cover-roman   {background:linear-gradient(135deg,#1a2744,#0e1830);}
+.cover-nouvelle{background:linear-gradient(135deg,#2a1a1a,#1a0e0e);}
+.cover-poesie  {background:linear-gradient(135deg,#1a1a2a,#0e0e1a);}
+.cover-essai   {background:linear-gradient(135deg,#1a2420,#0e1610);}
+.cover-scenario{background:linear-gradient(135deg,#1a1010,#100808);}
+.cover-default {background:linear-gradient(135deg,var(--gold),#8a6a18);}
+.cover-title-text{font-family:'Cinzel',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-align:center;padding:0 1rem;color:rgba(255,255,255,0.5);line-height:1.4;}
+
+.work-info{color:var(--parchment);}
+.work-type-badge{font-size:0.68rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.8rem;}
+.work-title-big{font-family:'Cinzel',serif;font-size:2.4rem;font-weight:700;line-height:1.15;margin-bottom:0.8rem;}
+.work-author-line{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;color:rgba(249,244,236,0.55);margin-bottom:1.5rem;}
+.work-author-line a{color:var(--gold-light);text-decoration:none;}
+.work-desc{font-family:'Cormorant Garamond',serif;font-size:1.12rem;line-height:1.8;color:rgba(249,244,236,0.65);max-width:560px;margin-bottom:1.8rem;}
+.work-tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem;}
+.tag{padding:0.25rem 0.7rem;border:1px solid rgba(184,151,42,0.3);font-size:0.72rem;color:rgba(184,151,42,0.8);border-radius:2px;}
+.work-meta-row{display:flex;gap:2rem;flex-wrap:wrap;}
+.wm-item{text-align:center;}
+.wm-num{font-family:'Cinzel',serif;font-size:1.35rem;font-weight:700;color:var(--gold);display:block;}
+.wm-label{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(249,244,236,0.28);}
+
+/* ── CAGNOTTE CARD ── */
+.cagnotte-card{background:var(--parchment);padding:1.8rem;position:sticky;top:70px;}
+.cc-title{font-family:'Cinzel',serif;font-size:0.72rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+.live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;flex-shrink:0;animation:blink 1.5s ease infinite;}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(1.4);}}
+
+/* Niveau tier badge */
+.tier-badge{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.7rem;background:rgba(184,151,42,0.1);border:1px solid rgba(184,151,42,0.25);font-size:0.68rem;font-weight:600;letter-spacing:0.08em;color:var(--gold);margin-bottom:1rem;}
+
+/* Montant principal en pépites */
+.cag-amount-big{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--gold);line-height:1;margin-bottom:0.2rem;}
+.cag-amount-eur{font-size:0.78rem;color:var(--text-muted);margin-bottom:0.8rem;}
+.cag-seuil-line{font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;}
+.cag-seuil-line strong{color:var(--ink);}
+
+.cag-bar{height:8px;background:var(--mist);border-radius:4px;overflow:hidden;margin-bottom:0.5rem;}
+.cag-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:4px;transition:width 1.5s ease;width:0%;}
+.cag-pct{font-size:0.75rem;font-weight:600;color:var(--gold);margin-bottom:0.5rem;}
+.cag-tirage{font-size:0.75rem;color:var(--text-muted);margin-bottom:1.2rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border);}
+.cag-tirage strong{color:var(--ink);}
+.cag-donors{font-size:0.78rem;color:var(--text-muted);margin-bottom:1.2rem;}
+
+/* Formulaire de don en pépites */
+.don-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;}
+.quick-pepites{display:flex;gap:0.4rem;margin-bottom:0.8rem;}
+.qp-btn{flex:1;padding:0.4rem 0.2rem;border:1px solid var(--border);background:white;font-size:0.72rem;cursor:pointer;transition:all 0.2s;color:var(--text-muted);text-align:center;line-height:1.3;}
+.qp-btn:hover,.qp-btn.active{border-color:var(--gold);background:rgba(184,151,42,0.08);color:var(--gold);}
+.qp-btn small{display:block;font-size:0.62rem;opacity:0.7;}
+.don-input-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;}
+.don-input{flex:1;padding:0.65rem;border:1.5px solid var(--border);font-size:1rem;color:var(--text);background:white;outline:none;text-align:center;font-family:'Cinzel',serif;transition:border-color 0.2s;}
+.don-input:focus{border-color:var(--gold);}
+.don-unit{font-size:0.82rem;color:var(--text-muted);white-space:nowrap;}
+.don-eur-equiv{font-size:0.72rem;color:var(--text-muted);text-align:center;margin-bottom:1rem;}
+.btn-soutenir{width:100%;padding:0.85rem;background:var(--gold);color:var(--ink);font-family:'Cinzel',serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;border:none;cursor:pointer;transition:all 0.3s;margin-bottom:0.5rem;}
+.btn-soutenir:hover{background:var(--gold-light);transform:translateY(-1px);box-shadow:0 4px 16px rgba(184,151,42,0.3);}
+.don-note{font-size:0.68rem;color:var(--text-muted);text-align:center;line-height:1.5;}
+
+/* Succès don */
+.don-success{display:none;text-align:center;padding:1rem;}
+.don-success.show{display:block;}
+.ds-icon{font-size:2rem;margin-bottom:0.4rem;}
+.ds-text{font-family:'Cinzel',serif;font-size:0.82rem;color:#1a6b3a;margin-bottom:0.2rem;}
+.ds-pepites{font-size:0.75rem;color:var(--gold);}
+
+/* ── CONTENT AREA ── */
+.work-content-area{max-width:1100px;margin:0 auto;padding:3rem;display:grid;grid-template-columns:1fr 320px;gap:3rem;}
+
+.reader-section h2{font-family:'Cinzel',serif;font-size:0.85rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.5rem;padding-bottom:0.9rem;border-bottom:1px solid var(--border);}
+.chapter-tabs{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.ch-tab{padding:0.38rem 0.9rem;border:1px solid var(--border);background:none;cursor:pointer;font-size:0.78rem;color:var(--text-muted);transition:all 0.2s;}
+.ch-tab.active{border-color:var(--gold);background:rgba(184,151,42,0.08);color:var(--ink);}
+.reader-content{font-family:'Cormorant Garamond',serif;font-size:1.2rem;line-height:1.9;color:var(--text);background:white;padding:3rem;box-shadow:0 2px 12px rgba(0,0,0,0.04);}
+.reader-content h2{font-family:'Cinzel',serif;font-size:1rem;font-weight:600;color:var(--text-muted);margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.read-more-btn{display:block;text-align:center;padding:1rem;background:var(--parchment);border:1px dashed var(--border);color:var(--text-muted);cursor:pointer;font-size:0.83rem;margin-top:1rem;transition:all 0.2s;text-decoration:none;}
+.read-more-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* Votes liste */
+.votes-section{margin-top:2rem;}
+.vote-item{padding:1.1rem;background:white;border:1px solid var(--border);margin-bottom:0.7rem;}
+.vote-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;}
+.voter-name{font-size:0.83rem;font-weight:500;color:var(--ink);}
+.vote-stars{color:var(--gold);font-size:0.85rem;}
+.vote-date{font-size:0.7rem;color:var(--text-muted);}
+.vote-text{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text-muted);line-height:1.6;}
+
+/* Sidebar droite */
+.sidebar-card{background:white;border:1px solid var(--border);padding:1.4rem;margin-bottom:1rem;}
+.sc-title{font-family:'Cinzel',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;}
+.vote-section{background:white;border:1px solid var(--border);padding:1.4rem;margin-bottom:1rem;}
+.stars-row{display:flex;gap:0.4rem;justify-content:center;margin-bottom:1rem;}
+.star-btn{font-size:1.7rem;background:none;border:none;cursor:pointer;color:var(--mist);transition:all 0.15s;line-height:1;}
+.star-btn.active,.star-btn:hover{color:var(--gold);transform:scale(1.1);}
+.vote-comment{width:100%;padding:0.6rem;border:1.5px solid var(--border);color:var(--text);resize:vertical;min-height:60px;font-family:'Cormorant Garamond',serif;font-size:1rem;outline:none;margin-bottom:0.8rem;}
+.vote-comment:focus{border-color:var(--gold);}
+.btn-vote{width:100%;padding:0.7rem;background:var(--ink);color:var(--parchment);font-family:'Cinzel',serif;font-size:0.78rem;font-weight:600;letter-spacing:0.1em;border:none;cursor:pointer;transition:background 0.2s;}
+.btn-vote:hover{background:var(--gold);color:var(--ink);}
+.author-profile{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+.author-avatar{width:44px;height:44px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1.1rem;color:var(--ink);font-weight:700;}
+.author-name{font-family:'Cinzel',serif;font-size:0.88rem;font-weight:600;color:var(--ink);}
+.author-stats{font-size:0.73rem;color:var(--text-muted);margin-top:0.2rem;}
+.btn-follow{width:100%;padding:0.6rem;border:1.5px solid var(--gold);background:none;color:var(--gold);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'Cinzel',serif;letter-spacing:0.1em;transition:all 0.2s;}
+.btn-follow:hover{background:var(--gold);color:var(--ink);}
+.wdl-item{display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.5rem;}
+.wdl-key{color:var(--text-muted);}
+.wdl-val{font-weight:500;color:var(--ink);}
+.watermark-info{font-size:0.7rem;color:var(--text-muted);background:var(--parchment);padding:0.6rem;border-left:2px solid var(--gold);line-height:1.6;margin-top:0.5rem;}
+.report-btn{font-size:0.7rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-top:0.5rem;}
+
+/* Printed */
+.printed-celebration{background:linear-gradient(135deg,var(--gold),#8a6a18);color:var(--ink);padding:1.5rem;text-align:center;margin-bottom:2rem;}
+.pc-title{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;letter-spacing:0.1em;margin-bottom:0.3rem;}
+
+/* Tier progression roadmap */
+.tier-roadmap{background:white;border:1px solid var(--border);padding:1.4rem;margin-bottom:1rem;}
+.tier-roadmap-title{font-family:'Cinzel',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;}
+.tier-step{display:flex;align-items:flex-start;gap:0.7rem;padding:0.5rem 0;border-bottom:1px solid rgba(221,216,207,0.4);}
+.tier-step:last-child{border-bottom:none;}
+.tier-step.current{background:rgba(184,151,42,0.04);margin:0 -0.5rem;padding:0.5rem 0.5rem;border-bottom:1px solid rgba(184,151,42,0.15)!important;}
+.ts-icon{font-size:1rem;flex-shrink:0;width:20px;text-align:center;}
+.ts-info{}
+.ts-label{font-size:0.78rem;font-weight:600;color:var(--ink);line-height:1.3;}
+.tier-step.current .ts-label{color:var(--gold);}
+.ts-detail{font-size:0.7rem;color:var(--text-muted);margin-top:0.1rem;}
+.ts-seuil{font-size:0.68rem;color:var(--gold);font-weight:600;margin-top:0.2rem;}
+.ts-locked{opacity:0.4;}
+
+@media(max-width:900px){
+  .work-hero-inner{grid-template-columns:1fr;}
+  .work-cover-big{width:120px;}
+  .work-content-area{grid-template-columns:1fr;}
+  nav{padding:0 1rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">LIBR<span>UM</span></a>
+  <div class="nav-spacer"></div>
+  <a href="catalog.html" class="nav-link">Catalogue</a>
+  <a href="editor.html" class="nav-btn">Écrire</a>
+</nav>
+
+<div class="work-hero">
+  <div class="work-hero-inner">
+
+    <div class="work-cover-big cover-roman" id="cover-el">
+      <div class="cover-title-text" id="cover-title-text">—</div>
+    </div>
+
+    <div class="work-info">
+      <div class="work-type-badge" id="work-type-badge">—</div>
+      <h1 class="work-title-big" id="work-title-big">Chargement…</h1>
+      <p class="work-author-line">par <a href="#" id="work-author-link">—</a></p>
+      <p class="work-desc" id="work-desc">—</p>
+      <div class="work-tags" id="work-tags"></div>
+      <div class="work-meta-row">
+        <div class="wm-item"><span class="wm-num" id="meta-rating">—</span><div class="wm-label">Note</div></div>
+        <div class="wm-item"><span class="wm-num" id="meta-votes">—</span><div class="wm-label">Votes</div></div>
+        <div class="wm-item"><span class="wm-num" id="meta-words">—</span><div class="wm-label">Mots</div></div>
+        <div class="wm-item"><span class="wm-num" id="meta-read">—</span><div class="wm-label">Min. lecture</div></div>
+        <div class="wm-item"><span class="wm-num" id="meta-views">—</span><div class="wm-label">Vues</div></div>
+      </div>
+    </div>
+
+    <!-- CAGNOTTE LIVE -->
+    <div class="cagnotte-card">
+      <div class="cc-title"><span class="live-dot"></span>Cagnotte en direct</div>
+
+      <div class="tier-badge" id="tier-badge">🌱 Auteur émergent</div>
+
+      <div class="cag-amount-big" id="cag-pepites">0 🪙</div>
+      <div class="cag-amount-eur" id="cag-eur">= 0,00 €</div>
+      <div class="cag-seuil-line">Seuil : <strong id="cag-seuil-txt">—</strong></div>
+
+      <div class="cag-bar"><div class="cag-fill" id="cag-fill"></div></div>
+      <div class="cag-pct"><span id="cag-pct">0</span>% atteint</div>
+      <div class="cag-tirage" id="cag-tirage">— exemplaires prévus</div>
+      <div class="cag-donors" id="cag-donors">— contributeurs</div>
+
+      <div id="don-form">
+        <div class="don-label">Soutenir en pépites 🪙</div>
+        <div class="quick-pepites">
+          <button class="qp-btn" onclick="setPepites(10)">10🪙<small>= 1€</small></button>
+          <button class="qp-btn active" onclick="setPepites(50)">50🪙<small>= 5€</small></button>
+          <button class="qp-btn" onclick="setPepites(100)">100🪙<small>= 10€</small></button>
+          <button class="qp-btn" onclick="setPepites(200)">200🪙<small>= 20€</small></button>
+        </div>
+        <div class="don-input-row">
+          <input class="don-input" type="number" id="don-pepites" value="50" min="1" step="1" oninput="updateEurEquiv()">
+          <span class="don-unit">🪙 pépites</span>
+        </div>
+        <div class="don-eur-equiv" id="don-eur-equiv">= 5,00 €</div>
+        <button class="btn-soutenir" onclick="doDonate()">🪙 Soutenir cette œuvre</button>
+        <p class="don-note">0% de commission · 100% finance l'édition<br>1 pépite = 0,10€ · Paiement via Stripe</p>
+      </div>
+
+      <div class="don-success" id="don-success">
+        <div class="ds-icon">✦</div>
+        <div class="ds-text">Merci pour votre soutien !</div>
+        <div class="ds-pepites" id="ds-pepites-txt">+50 🪙 ajoutées à la cagnotte</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem;">Vous faites partie de l'histoire.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="work-content-area">
+  <div>
+    <div class="printed-celebration" id="printed-celebration" style="display:none">
+      <div class="pc-title">🏆 Cette œuvre a été éditée et distribuée !</div>
+      <div style="font-size:0.82rem;opacity:0.85;">Grâce à la communauté LIBRUM. Elle figure au Livre d'Or.</div>
+    </div>
+
+    <div class="reader-section">
+      <h2>Extrait</h2>
+      <div class="chapter-tabs" id="chapter-tabs"></div>
+      <div class="reader-content" id="reader-content">
+        <p style="color:var(--text-muted);font-style:italic;">Chargement…</p>
+      </div>
+      <a href="reader.html" class="read-more-btn" id="full-read-btn">Lire l'œuvre complète →</a>
+    </div>
+
+    <div class="votes-section">
+      <h2 style="font-family:'Cinzel',serif;font-size:0.85rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.5rem;padding-bottom:0.9rem;border-bottom:1px solid var(--border);">Avis de la communauté</h2>
+      <div id="votes-list"></div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div>
+    <!-- VOTER -->
+    <div class="vote-section">
+      <div class="sc-title">Voter pour cette œuvre</div>
+      <div class="stars-row">
+        <button class="star-btn" onclick="setRating(1)">★</button>
+        <button class="star-btn" onclick="setRating(2)">★</button>
+        <button class="star-btn" onclick="setRating(3)">★</button>
+        <button class="star-btn" onclick="setRating(4)">★</button>
+        <button class="star-btn" onclick="setRating(5)">★</button>
+      </div>
+      <textarea class="vote-comment" id="vote-comment" placeholder="Votre avis (optionnel)…"></textarea>
+      <button class="btn-vote" onclick="doVote()">Soumettre mon vote</button>
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;text-align:center;line-height:1.5;">5 votes/mois · Disponible après 7 jours d'inscription<br>Chaque vote fait monter le niveau d'édition !</div>
+    </div>
+
+    <!-- TIER ROADMAP -->
+    <div class="tier-roadmap">
+      <div class="tier-roadmap-title">Niveaux d'édition</div>
+      <div id="tier-roadmap-list"></div>
+    </div>
+
+    <!-- AUTEUR -->
+    <div class="sidebar-card">
+      <div class="sc-title">L'auteur</div>
+      <div class="author-profile">
+        <div class="author-avatar" id="author-initial">?</div>
+        <div>
+          <div class="author-name" id="author-name">—</div>
+          <div class="author-stats" id="author-stats">—</div>
+        </div>
+      </div>
+      <button class="btn-follow" onclick="toggleFollow(this)">+ Suivre</button>
+    </div>
+
+    <!-- DÉTAILS -->
+    <div class="sidebar-card">
+      <div class="sc-title">Détails</div>
+      <div id="work-details"></div>
+      <div class="watermark-info" id="watermark-info">—</div>
+      <button class="report-btn" onclick="openReport()">⚑ Signaler ce contenu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API     = 'http://localhost:3001/api';
+const workId  = new URLSearchParams(location.search).get('id') || '11';
+let currentRating = 0;
+let workData  = null;
+
+// ── MOCK DATA ──────────────────────────────────────────────
+const MOCK = {
+  id:'11', title:'Le Dernier Griot', type:'roman',
+  author_pseudo:'ousmane_n',
+  description:'Dans les savanes du Sénégal, Koffi est le dernier gardien d\'une tradition millénaire. Alors que la modernité dévore les mémoires, il doit choisir entre préserver l\'héritage de ses ancêtres et sauver sa famille. Un roman bouleversant sur la transmission, l\'identité et le sacrifice.',
+  avg_rating:4.9, vote_count:234, word_count:87420, reading_time_min:437,
+  view_count:3847,
+  cagnotte_pepites: 11340,   // pépites collectées
+  cagnotte_donors:  31,
+  is_printed:false, language:'fr', genre:'Littérature africaine',
+  tags:['Afrique','tradition','identité','famille'],
+  published_at:'2026-01-15',
+  watermark_id:'LBR-u1-1736899200',
+  author_works:3, author_reputation:4.8,
+  content_json:{chapters:[
+    {id:'1',title:'Prologue',content:`<h2>Prologue</h2>
+      <p>La nuit tombait sur le village de Koundara lorsque le vieux Koffi sortit sa kora pour la dernière fois. Ses mains, usées par soixante-dix années de vie, tremblaient légèrement sur les calebasses. Mais sa voix, elle, restait intacte — gravée dans l'éternité du chant.</p>
+      <p>Son petit-fils Mamadou l'observait depuis le seuil de la case, les yeux grands ouverts. À treize ans, il ne comprenait pas encore pourquoi les larmes du vieillard semblaient couler à l'envers — non pas vers la terre, mais vers le ciel.</p>
+      <p>— <em>Tu dois apprendre</em>, murmura Koffi. <em>Pas pour moi. Pour eux.</em></p>`},
+    {id:'2',title:'Chapitre 1',content:`<h2>Chapitre 1 — Le chant des ancêtres</h2>
+      <p>Trois semaines plus tôt, les hommes de la compagnie minière étaient arrivés dans leurs 4x4 blancs. Ils avaient des chemises propres, des stylos dorés et des sourires qui ne montaient jamais jusqu'aux yeux.</p>
+      <p>Koffi n'avait pas assisté à la réunion. Il savait déjà ce qu'ils voulaient. Depuis le temps qu'on lui proposait d'acheter sa terre, de racheter sa mémoire, de numériser ses chants pour les mettre sur des plateformes où personne n'écouterait vraiment.</p>`},
+  ]},
+};
+
+const TYPE_LABELS = {roman:'Roman',nouvelle:'Nouvelle',poesie:'Poésie',essai:'Essai',scenario_film:'Scénario Film',scenario_serie:'Scénario Série',bd:'BD',jeunesse:'Jeunesse'};
+const COVER_CLS   = {roman:'cover-roman',nouvelle:'cover-nouvelle',poesie:'cover-poesie',essai:'cover-essai',scenario_film:'cover-scenario',scenario_serie:'cover-scenario'};
+
+// ── INIT ───────────────────────────────────────────────────
+async function init() {
+  try {
+    const r = await fetch(`${API}/works/${workId}`);
+    if (!r.ok) throw 0;
+    workData = await r.json();
+  } catch {
+    workData = MOCK;
+  }
+  renderWork();
+  loadVotes();
+  initLive();
+}
+
+// ── RENDER ─────────────────────────────────────────────────
+function renderWork() {
+  const w = workData;
+  document.title = `LIBRUM — ${w.title}`;
+  document.getElementById('cover-title-text').textContent = w.title;
+  document.getElementById('cover-el').className = `work-cover-big ${COVER_CLS[w.type]||'cover-default'}`;
+  document.getElementById('work-type-badge').textContent   = TYPE_LABELS[w.type] || w.type;
+  document.getElementById('work-title-big').textContent    = w.title;
+  document.getElementById('work-author-link').textContent  = w.author_pseudo;
+  document.getElementById('work-author-link').href         = `profile.html?pseudo=${w.author_pseudo}`;
+  document.getElementById('work-desc').textContent         = w.description;
+
+  (w.tags||[]).forEach(t => {
+    const s = document.createElement('span'); s.className='tag'; s.textContent=t;
+    document.getElementById('work-tags').appendChild(s);
+  });
+
+  document.getElementById('meta-rating').textContent = w.avg_rating ? parseFloat(w.avg_rating).toFixed(1)+'★' : '—';
+  document.getElementById('meta-votes').textContent  = (w.vote_count||0).toLocaleString('fr');
+  document.getElementById('meta-words').textContent  = (w.word_count||0).toLocaleString('fr');
+  document.getElementById('meta-read').textContent   = w.reading_time_min || '—';
+  document.getElementById('meta-views').textContent  = (w.view_count||0).toLocaleString('fr');
+
+  renderCagnotte(w.cagnotte_pepites||0, w.vote_count||0, w.cagnotte_donors||0, true);
+
+  if (w.is_printed) document.getElementById('printed-celebration').style.display='block';
+
+  // Chapters
+  const tabs = document.getElementById('chapter-tabs');
+  (w.content_json?.chapters||[]).forEach((ch,i) => {
+    const b = document.createElement('button');
+    b.className = 'ch-tab' + (i===0?' active':'');
+    b.textContent = ch.title;
+    b.onclick = () => showChapter(i, b);
+    tabs.appendChild(b);
+  });
+  if (w.content_json?.chapters?.length) showChapter(0, tabs.firstChild);
+  document.getElementById('full-read-btn').href = `reader.html?id=${w.id}`;
+
+  // Author
+  document.getElementById('author-initial').textContent = (w.author_pseudo||'?')[0].toUpperCase();
+  document.getElementById('author-name').textContent    = w.author_pseudo;
+  document.getElementById('author-stats').textContent   = `${w.author_works||1} œuvre${w.author_works!==1?'s':''} · ★${w.author_reputation||'—'}`;
+
+  // Details
+  const date = w.published_at ? new Date(w.published_at).toLocaleDateString('fr-FR') : '—';
+  document.getElementById('work-details').innerHTML = [
+    ['Type',    TYPE_LABELS[w.type]||w.type],
+    ['Genre',   w.genre||'—'],
+    ['Langue',  (w.language||'fr').toUpperCase()],
+    ['Mots',    (w.word_count||0).toLocaleString('fr')],
+    ['Publication', date],
+  ].map(([k,v]) => `<div class="wdl-item"><span class="wdl-key">${k}</span><span class="wdl-val">${v}</span></div>`).join('');
+
+  document.getElementById('watermark-info').innerHTML = `🔐 <code>${w.watermark_id||'LBR-???'}</code><br>Horodatage immuable — preuve d'antériorité.`;
+
+  renderTierRoadmap(w.vote_count||0);
+}
+
+// ── CAGNOTTE ───────────────────────────────────────────────
+function renderCagnotte(pepites, votes, donors, animate=false) {
+  const tier   = LC.getTier(votes);
+  const seuil  = tier.seuil_pepites;
+  const pct    = LC.progressPct(pepites, seuil);
+  const eur    = LC.pepitesToEur(pepites);
+  const lingots = LC.pepitesToLingots(pepites);
+  const reste   = LC.remainder(pepites);
+
+  // Tier badge
+  document.getElementById('tier-badge').textContent = `${tier.icon} ${tier.label}`;
+
+  // Montant
+  const pepEl = document.getElementById('cag-pepites');
+  if (animate) {
+    animNum(pepEl, pepites, 1500, false, ' 🪙');
+  } else {
+    pepEl.textContent = pepites.toLocaleString('fr') + ' 🪙';
+  }
+
+  // Affichage en lingots si applicable
+  if (pepites >= 10000) {
+    pepEl.title = LC.format(pepites, 'auto');
+  }
+
+  document.getElementById('cag-eur').textContent    = `= ${parseFloat(eur).toLocaleString('fr', {minimumFractionDigits:2})} €`;
+  document.getElementById('cag-seuil-txt').textContent = LC.format(seuil, 'compact') + ` (${(seuil/10).toLocaleString('fr')} €)`;
+  document.getElementById('cag-fill').style.width   = pct + '%';
+  document.getElementById('cag-pct').textContent    = pct;
+  document.getElementById('cag-tirage').innerHTML   = `Tirage prévu : <strong>${tier.tirage.toLocaleString('fr')} exemplaires</strong> — ${tier.description}`;
+  document.getElementById('cag-donors').textContent = `${donors} contributeur${donors!==1?'s':''}`;
+}
+
+// ── TIER ROADMAP ────────────────────────────────────────────
+function renderTierRoadmap(votes) {
+  const currentTier = LC.getTier(votes);
+  document.getElementById('tier-roadmap-list').innerHTML = LC.TIERS.map(t => {
+    const isCurrent = t.level === currentTier.level;
+    const isPast    = t.level < currentTier.level;
+    return `<div class="tier-step ${isCurrent?'current':''} ${isPast?'':''}">
+      <div class="ts-icon">${isPast?'✓':t.icon}</div>
+      <div class="ts-info ${t.level > currentTier.level?'ts-locked':''}">
+        <div class="ts-label">${t.label}</div>
+        <div class="ts-detail">${t.tirage.toLocaleString('fr')} ex · ${t.votes_min}${t.votes_max===Infinity?'+':`–${t.votes_max}`} votes</div>
+        <div class="ts-seuil">${LC.format(t.seuil_pepites,'compact')} = ${(t.cost_eur).toLocaleString('fr')} €</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DON ────────────────────────────────────────────────────
+function setPepites(n) {
+  document.getElementById('don-pepites').value = n;
+  document.querySelectorAll('.qp-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  updateEurEquiv();
+}
+
+function updateEurEquiv() {
+  const p = parseInt(document.getElementById('don-pepites').value) || 0;
+  const eur = (p * LC.PEPITE_TO_EUR).toFixed(2);
+  document.getElementById('don-eur-equiv').textContent = `= ${parseFloat(eur).toLocaleString('fr', {minimumFractionDigits:2})} €`;
+}
+
+async function doDonate() {
+  const pepites = parseInt(document.getElementById('don-pepites').value) || 0;
+  if (pepites < 1) { alert('Minimum 1 pépite 🪙'); return; }
+
+  const btn = document.querySelector('.btn-soutenir');
+  btn.textContent = '⌛ Traitement…'; btn.disabled = true;
+  await new Promise(r => setTimeout(r, 1000));
+
+  // Maj locale
+  workData.cagnotte_pepites = (workData.cagnotte_pepites||0) + pepites;
+  workData.cagnotte_donors  = (workData.cagnotte_donors||0) + 1;
+  renderCagnotte(workData.cagnotte_pepites, workData.vote_count||0, workData.cagnotte_donors);
+  renderTierRoadmap(workData.vote_count||0);
+
+  // Flash
+  document.querySelector('.cagnotte-card').style.boxShadow = '0 0 0 3px var(--gold)';
+  setTimeout(() => document.querySelector('.cagnotte-card').style.boxShadow = '', 1000);
+
+  document.getElementById('don-form').style.display = 'none';
+  document.getElementById('ds-pepites-txt').textContent = `+${pepites.toLocaleString('fr')} 🪙 ajoutées à la cagnotte`;
+  document.getElementById('don-success').classList.add('show');
+  setTimeout(() => {
+    document.getElementById('don-success').classList.remove('show');
+    document.getElementById('don-form').style.display = 'block';
+    btn.textContent = '🪙 Soutenir cette œuvre'; btn.disabled = false;
+  }, 4000);
+}
+
+// ── VOTE ───────────────────────────────────────────────────
+function setRating(r) {
+  currentRating = r;
+  document.querySelectorAll('.star-btn').forEach((b,i) => b.classList.toggle('active', i < r));
+}
+
+async function doVote() {
+  if (!currentRating) { alert('Choisissez une note.'); return; }
+  await new Promise(r => setTimeout(r, 500));
+
+  // Incrémenter votes → peut changer le tier
+  workData.vote_count = (workData.vote_count||0) + 1;
+  renderCagnotte(workData.cagnotte_pepites||0, workData.vote_count, workData.cagnotte_donors||0);
+  renderTierRoadmap(workData.vote_count);
+
+  addVote({ voter_pseudo:'Vous', rating:currentRating, comment:document.getElementById('vote-comment').value, date:'À l\'instant' });
+  document.getElementById('vote-comment').value = '';
+  setRating(0);
+  alert('Vote enregistré. Merci !');
+}
+
+function addVote(v) {
+  const el = document.createElement('div');
+  el.className = 'vote-item';
+  el.innerHTML = `<div class="vote-header"><span class="voter-name">${v.voter_pseudo}</span><span class="vote-stars">${'★'.repeat(v.rating)}${'☆'.repeat(5-v.rating)}</span><span class="vote-date">${v.date}</span></div>${v.comment?`<div class="vote-text">${v.comment}</div>`:''}`;
+  document.getElementById('votes-list').prepend(el);
+}
+
+function loadVotes() {
+  [
+    {voter_pseudo:'aminata_d', rating:5, comment:'Un roman qui m\'a bouleversée. La prose est d\'une beauté rare.', date:'28 fév. 2026'},
+    {voter_pseudo:'pierre_m',  rating:5, comment:'À la hauteur des grands textes de la littérature africaine.', date:'22 fév. 2026'},
+    {voter_pseudo:'zeynab_k',  rating:4, comment:'Très beau texte. La fin est magistrale.', date:'14 fév. 2026'},
+    {voter_pseudo:'rafael_s',  rating:5, comment:'Je n\'avais pas pleuré devant un livre depuis des années.', date:'8 fév. 2026'},
+  ].forEach(v => addVote(v));
+}
+
+// ── LIVE UPDATES ───────────────────────────────────────────
+function initLive() {
+  // Simuler nouveaux dons toutes les 8-15s
+  setInterval(() => {
+    if (Math.random() < 0.35 && workData) {
+      const n = Math.floor(Math.random() * 50) + 10; // 10–60 pépites
+      workData.cagnotte_pepites = (workData.cagnotte_pepites||0) + n;
+      workData.cagnotte_donors  = (workData.cagnotte_donors||0) + 1;
+      renderCagnotte(workData.cagnotte_pepites, workData.vote_count||0, workData.cagnotte_donors);
+      document.getElementById('cag-pepites').style.color = 'var(--gold-light)';
+      setTimeout(() => document.getElementById('cag-pepites').style.color = '', 600);
+    }
+  }, 10000);
+}
+
+// ── UTILS ──────────────────────────────────────────────────
+function showChapter(idx, btn) {
+  document.querySelectorAll('.ch-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const ch = (workData?.content_json?.chapters||[])[idx];
+  if (ch) document.getElementById('reader-content').innerHTML = ch.content;
+}
+
+function animNum(el, target, dur, isFloat=false, suffix='') {
+  const start = parseFloat(el.textContent) || 0;
+  const t0 = performance.now();
+  const tick = now => {
+    const p = Math.min((now-t0)/dur, 1);
+    const v = start + (target-start) * (1-Math.pow(1-p,3));
+    el.textContent = (isFloat ? v.toFixed(2) : Math.round(v).toLocaleString('fr')) + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+function toggleFollow(btn) {
+  const on = btn.textContent.startsWith('+');
+  btn.textContent = on ? '✓ Suivi' : '+ Suivre';
+  btn.style.background = on ? 'var(--gold)' : '';
+  btn.style.color = on ? 'var(--ink)' : '';
+}
+
+function openReport() {
+  if (confirm('Signaler ce contenu à la modération ?')) alert('Signalement enregistré. Merci pour votre vigilance.');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+updateEurEquiv();
+</script>
+</body>
+</html>

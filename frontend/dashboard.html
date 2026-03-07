@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0e0c09; --parchment:#f9f4ec; --gold:#b8972a; --gold-light:#d4b04a;
+  --mist:#e8e2d8; --bg:#ede8df; --text:#2a2520; --text-muted:#7a7068;
+  --border:#ddd8cf; --success:#1a6b3a; --error:#c0392b;
+  --sidebar-w:220px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+
+body {
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  min-height:100vh;
+}
+
+/* ────── SIDEBAR ────── */
+.sidebar {
+  width:var(--sidebar-w);
+  min-width:var(--sidebar-w);
+  background:var(--ink);
+  display:flex;
+  flex-direction:column;
+  position:fixed;
+  top:0; left:0;
+  height:100vh;
+  z-index:100;
+}
+.sb-logo {
+  padding:1.4rem 1.2rem;
+  font-family:'Cinzel',serif;
+  font-size:1.05rem; font-weight:700;
+  color:var(--parchment);
+  letter-spacing:0.18em;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  flex-shrink:0;
+}
+.sb-logo span { color:var(--gold); }
+
+.sb-user {
+  padding:0.9rem 1.2rem;
+  display:flex; align-items:center; gap:0.75rem;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  flex-shrink:0;
+}
+.sb-avatar {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--gold);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:0.85rem; font-weight:700;
+  color:var(--ink); flex-shrink:0;
+}
+.sb-pseudo { font-size:0.8rem; font-weight:600; color:var(--parchment); }
+.sb-level  { font-size:0.62rem; color:var(--gold); margin-top:0.1rem; }
+
+.sb-nav { flex:1; overflow-y:auto; padding:0.5rem 0; }
+.sb-section {
+  font-size:0.58rem; font-weight:600;
+  letter-spacing:0.2em; text-transform:uppercase;
+  color:rgba(255,255,255,0.18);
+  padding:0.9rem 1.2rem 0.3rem;
+}
+.sb-item {
+  display:flex; align-items:center; gap:0.75rem;
+  padding:0.55rem 1.2rem;
+  cursor:pointer;
+  border-left:3px solid transparent;
+  text-decoration:none;
+  transition:background 0.12s;
+}
+.sb-item:hover { background:rgba(255,255,255,0.03); }
+.sb-item.active { background:rgba(184,151,42,0.09); border-left-color:var(--gold); }
+.sb-icon { font-size:0.85rem; width:16px; text-align:center; opacity:0.55; flex-shrink:0; }
+.sb-item.active .sb-icon { opacity:1; }
+.sb-label { font-size:0.8rem; color:rgba(255,255,255,0.45); white-space:nowrap; }
+.sb-item.active .sb-label { color:rgba(255,255,255,0.88); }
+.sb-badge {
+  margin-left:auto;
+  background:var(--gold); color:var(--ink);
+  font-size:0.58rem; font-weight:700;
+  padding:0.1rem 0.4rem; border-radius:10px;
+}
+.sb-bottom {
+  padding:1rem 1.2rem;
+  border-top:1px solid rgba(255,255,255,0.05);
+  flex-shrink:0;
+}
+.sb-votes-box {
+  background:rgba(184,151,42,0.08);
+  border:1px solid rgba(184,151,42,0.15);
+  padding:0.65rem 0.8rem;
+  margin-bottom:0.75rem;
+}
+.sv-label { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:0.4rem; }
+.sv-dots  { display:flex; gap:4px; }
+.sv-dot   { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,0.1); }
+.sv-dot.on { background:var(--gold); }
+.btn-write {
+  display:block; text-align:center;
+  padding:0.65rem;
+  background:var(--gold); color:var(--ink);
+  font-family:'Cinzel',serif;
+  font-size:0.75rem; font-weight:700;
+  letter-spacing:0.1em;
+  text-decoration:none;
+  transition:background 0.2s;
+}
+.btn-write:hover { background:var(--gold-light); }
+
+/* ────── MAIN ────── */
+.main {
+  margin-left:var(--sidebar-w);
+  flex:1;
+  min-width:0;
+  padding:2rem 2.5rem;
+  overflow-x:hidden;
+}
+.page { display:none; }
+.page.active { display:block; animation:fadeIn 0.25s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ────── PAGE HEADER ────── */
+.pg-top {
+  display:flex; align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:1.8rem;
+  gap:1rem;
+}
+.pg-title {
+  font-family:'Cinzel',serif;
+  font-size:1.5rem; font-weight:700;
+  color:var(--ink); line-height:1.15;
+}
+.pg-sub {
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:1rem; color:var(--text-muted);
+  margin-top:0.25rem;
+}
+.btn-prim {
+  padding:0.55rem 1.2rem;
+  background:var(--gold); color:var(--ink);
+  font-size:0.78rem; font-weight:600;
+  letter-spacing:0.06em;
+  border:none; cursor:pointer;
+  text-decoration:none; white-space:nowrap;
+  transition:background 0.2s;
+  flex-shrink:0; display:inline-block;
+}
+.btn-prim:hover { background:var(--gold-light); }
+.btn-ghost {
+  padding:0.5rem 1rem;
+  border:1px solid var(--border);
+  background:white; color:var(--text-muted);
+  font-size:0.78rem; cursor:pointer;
+  white-space:nowrap; flex-shrink:0;
+  transition:all 0.2s;
+}
+.btn-ghost:hover { border-color:var(--gold); color:var(--gold); }
+
+/* ────── STAT CARDS ────── */
+.stats-row {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+.stat-card {
+  background:white;
+  border:1px solid var(--border);
+  padding:1.3rem 1.1rem;
+  min-width:0;
+  position:relative;
+  overflow:hidden;
+}
+.stat-card::after {
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:3px;
+  background:var(--gold);
+  transform:scaleX(0); transform-origin:left;
+  transition:transform 0.3s;
+}
+.stat-card:hover::after { transform:scaleX(1); }
+.sc-icon { font-size:1.1rem; margin-bottom:0.6rem; display:block; opacity:0.55; }
+.sc-num {
+  font-family:'Cinzel',serif;
+  font-size:1.75rem; font-weight:700;
+  color:var(--ink); line-height:1;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.sc-label {
+  font-size:0.65rem; font-weight:600;
+  letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text-muted); margin-top:0.35rem;
+}
+.sc-delta { font-size:0.68rem; margin-top:0.3rem; }
+.sc-delta.pos { color:var(--success); }
+.sc-delta.neg { color:var(--error); }
+
+/* ────── CARD ────── */
+.card { background:white; border:1px solid var(--border); }
+.card-header {
+  padding:0.85rem 1.2rem;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.card-title {
+  font-family:'Cinzel',serif;
+  font-size:0.7rem; font-weight:600;
+  letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--text-muted);
+}
+.card-body { padding:1.2rem; }
+
+/* ────── CHARTS ROW ────── */
+.charts-row {
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+.cag-big {
+  font-family:'Cinzel',serif;
+  font-size:2.8rem; font-weight:700;
+  color:var(--gold); line-height:1;
+  margin-bottom:0.3rem;
+}
+.cag-lbl { font-size:0.78rem; color:var(--text-muted); margin-bottom:1rem; }
+.progress-bar { height:10px; background:var(--mist); border-radius:5px; overflow:hidden; margin-bottom:0.5rem; }
+.pb-fill {
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light));
+  border-radius:5px;
+  transition:width 1.2s ease;
+  width:0%;
+}
+.cag-amounts { font-size:0.78rem; color:var(--text-muted); }
+.cag-miss { font-size:0.78rem; color:var(--gold); font-weight:600; margin-top:0.3rem; }
+
+/* ────── BOTTOM ROW ────── */
+.bottom-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+}
+
+/* Activity */
+.act-item {
+  display:flex; align-items:flex-start; gap:0.75rem;
+  padding:0.72rem 1.2rem;
+  border-bottom:1px solid rgba(221,216,207,0.5);
+  font-size:0.81rem;
+}
+.act-item:last-child { border-bottom:none; }
+.act-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+.act-dot.donate { background:var(--gold); }
+.act-dot.vote   { background:#3b82f6; }
+.act-dot.follow { background:var(--success); }
+.act-txt { flex:1; line-height:1.5; color:var(--text-muted); }
+.act-txt strong { color:var(--ink); }
+.act-time { font-size:0.67rem; color:var(--text-muted); white-space:nowrap; }
+
+/* Votes card */
+.vg-circles { display:flex; gap:0.45rem; margin-bottom:0.8rem; }
+.vg-circle {
+  width:32px; height:32px; border-radius:50%;
+  border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.7rem; font-weight:600; color:var(--text-muted);
+}
+.vg-circle.on { border-color:var(--gold); background:var(--gold); color:var(--ink); }
+.vg-note { font-size:0.78rem; color:var(--text-muted); line-height:1.6; }
+.countdown { font-weight:600; color:var(--gold); }
+
+/* ────── WORKS TABLE ────── */
+.works-table { width:100%; border-collapse:collapse; }
+.works-table th {
+  padding:0.65rem 1rem;
+  text-align:left;
+  font-size:0.62rem; font-weight:600;
+  letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--text-muted);
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.works-table td {
+  padding:0.85rem 1rem;
+  border-bottom:1px solid rgba(221,216,207,0.45);
+  font-size:0.82rem;
+}
+.works-table tr:last-child td { border-bottom:none; }
+.works-table tr:hover td { background:#fdfaf5; }
+.wt-title { font-weight:500; color:var(--ink); }
+.wt-type  { font-size:0.7rem; color:var(--text-muted); margin-top:0.1rem; }
+.badge {
+  display:inline-block;
+  padding:0.17rem 0.52rem;
+  font-size:0.61rem; font-weight:600;
+  letter-spacing:0.06em; text-transform:uppercase;
+  border-radius:2px;
+}
+.b-pub   { background:rgba(26,107,58,0.1);  color:var(--success); }
+.b-draft { background:var(--mist);           color:var(--text-muted); }
+.b-print { background:rgba(184,151,42,0.12); color:var(--gold); }
+.cag-inline { display:flex; align-items:center; gap:0.5rem; }
+.cag-bar { width:56px; height:4px; background:var(--mist); border-radius:2px; overflow:hidden; flex-shrink:0; }
+.cag-bar-fill { height:100%; background:var(--gold); }
+.td-actions { display:flex; gap:0.3rem; }
+.td-btn {
+  padding:0.22rem 0.52rem; font-size:0.68rem;
+  border:1px solid var(--border); background:white;
+  color:var(--text-muted); cursor:pointer; transition:all 0.15s;
+  white-space:nowrap;
+}
+.td-btn:hover { border-color:var(--gold); color:var(--gold); }
+.td-btn.del:hover { border-color:var(--error); color:var(--error); }
+
+/* ────── NOTIFICATIONS ────── */
+.notif-item {
+  display:flex; align-items:flex-start; gap:0.9rem;
+  padding:0.9rem 1.2rem;
+  border-bottom:1px solid rgba(221,216,207,0.5);
+  cursor:pointer; transition:background 0.12s;
+}
+.notif-item:hover { background:#fdfaf5; }
+.notif-item:last-child { border-bottom:none; }
+.notif-item.unread { background:rgba(184,151,42,0.04); border-left:3px solid var(--gold); }
+.ni-icon { font-size:1.1rem; width:24px; text-align:center; flex-shrink:0; padding-top:1px; }
+.ni-text { font-size:0.82rem; color:var(--text); line-height:1.5; }
+.ni-text strong { color:var(--ink); }
+.ni-time { font-size:0.68rem; color:var(--text-muted); margin-top:0.2rem; }
+
+/* ────── SETTINGS ────── */
+.settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.setting-card { background:white; border:1px solid var(--border); padding:1.4rem; }
+.setting-card h3 {
+  font-family:'Cinzel',serif;
+  font-size:0.72rem; font-weight:600;
+  letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--text-muted); margin-bottom:1.1rem;
+}
+.fg { margin-bottom:0.9rem; }
+.fg label {
+  display:block;
+  font-size:0.67rem; font-weight:600;
+  letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--text-muted); margin-bottom:0.35rem;
+}
+.fg input, .fg textarea {
+  width:100%; padding:0.6rem 0.8rem;
+  border:1.5px solid var(--border);
+  background:var(--parchment);
+  font-size:0.88rem; color:var(--text);
+  font-family:inherit; outline:none;
+  transition:border-color 0.2s;
+}
+.fg input:focus, .fg textarea:focus { border-color:var(--gold); }
+.fg textarea { min-height:76px; resize:vertical; }
+.fg input[readonly] { opacity:0.5; cursor:not-allowed; }
+.btn-save {
+  padding:0.6rem 1.3rem;
+  background:var(--ink); color:var(--parchment);
+  font-family:'Cinzel',serif;
+  font-size:0.74rem; font-weight:600;
+  letter-spacing:0.1em; border:none; cursor:pointer;
+  transition:background 0.2s;
+}
+.btn-save:hover { background:var(--gold); color:var(--ink); }
+.setting-card.full { grid-column:1 / -1; }
+
+/* ────── ANALYTICS ────── */
+.geo-row { display:flex; align-items:center; gap:1rem; margin-bottom:0.75rem; }
+.geo-name { font-size:0.82rem; min-width:130px; color:var(--text); }
+.geo-wrap { flex:1; height:6px; background:var(--mist); border-radius:3px; overflow:hidden; }
+.geo-fill { height:100%; background:var(--gold); border-radius:3px; }
+.geo-pct  { font-size:0.74rem; color:var(--gold); font-weight:600; min-width:30px; text-align:right; }
+
+/* scrollbar */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.1); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">LIBR<span>UM</span></div>
+  <div class="sb-user">
+    <div class="sb-avatar">O</div>
+    <div>
+      <div class="sb-pseudo">ousmane_n</div>
+      <div class="sb-level">Niveau 3 — Auteur</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Tableau de bord</div>
+    <a class="sb-item active" onclick="showPage('overview',this)"><span class="sb-icon">◈</span><span class="sb-label">Vue d'ensemble</span></a>
+    <a class="sb-item" onclick="showPage('works',this)"><span class="sb-icon">📚</span><span class="sb-label">Mes œuvres</span></a>
+    <a class="sb-item" onclick="showPage('analytics',this)"><span class="sb-icon">◉</span><span class="sb-label">Statistiques</span></a>
+    <a class="sb-item" onclick="showPage('notifications',this)"><span class="sb-icon">◎</span><span class="sb-label">Notifications</span><span class="sb-badge">4</span></a>
+    <div class="sb-section">Communauté</div>
+    <a class="sb-item" onclick="showPage('votes',this)"><span class="sb-icon">★</span><span class="sb-label">Mes votes</span></a>
+    <a class="sb-item" href="catalog.html"><span class="sb-icon">◫</span><span class="sb-label">Catalogue</span></a>
+    <a class="sb-item" href="livredor.html"><span class="sb-icon">🏆</span><span class="sb-label">Livre d'Or</span></a>
+    <div class="sb-section">Compte</div>
+    <a class="sb-item" onclick="showPage('settings',this)"><span class="sb-icon">⚙</span><span class="sb-label">Paramètres</span></a>
+    <a class="sb-item" href="index.html"><span class="sb-icon">↩</span><span class="sb-label">Déconnexion</span></a>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-votes-box">
+      <div class="sv-label">Votes restants</div>
+      <div class="sv-dots">
+        <div class="sv-dot on"></div><div class="sv-dot on"></div>
+        <div class="sv-dot"></div><div class="sv-dot"></div><div class="sv-dot"></div>
+      </div>
+    </div>
+    <a href="editor.html" class="btn-write">+ Nouvelle œuvre</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- VUE D'ENSEMBLE -->
+  <div class="page active" id="page-overview">
+    <div class="pg-top">
+      <div>
+        <div class="pg-title">Bonjour, Ousmane.</div>
+        <div class="pg-sub">Votre communauté vous attend. 11 340 🪙 en cagnotte ce mois-ci.</div>
+      </div>
+      <a href="editor.html" class="btn-prim">+ Écrire</a>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="sc-icon">📖</span>
+        <div class="sc-num">3 847</div>
+        <div class="sc-label">Lectures totales</div>
+        <div class="sc-delta pos">+127 cette semaine</div>
+      </div>
+      <div class="stat-card">
+        <span class="sc-icon">★</span>
+        <div class="sc-num">4,9</div>
+        <div class="sc-label">Note moyenne</div>
+        <div class="sc-delta pos">+0,1 ce mois</div>
+      </div>
+      <div class="stat-card">
+        <span class="sc-icon">♡</span>
+        <div class="sc-num">11 340 🪙</div>
+        <div class="sc-label">Cagnotte totale</div>
+        <div class="sc-delta pos">+1 200🪙 cette semaine</div>
+      </div>
+      <div class="stat-card">
+        <span class="sc-icon">👥</span>
+        <div class="sc-num">89</div>
+        <div class="sc-label">Abonnés</div>
+        <div class="sc-delta pos">+11 ce mois</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Lectures — 30 derniers jours</div></div>
+        <div class="card-body"><canvas id="views-chart" height="100"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Cagnotte — progression</div></div>
+        <div class="card-body" style="text-align:center; padding:1.5rem 1rem;">
+          <div class="cag-big">76%</div>
+          <div class="cag-lbl">du seuil Niveau 2 atteint</div>
+          <div class="progress-bar"><div class="pb-fill" id="cag-fill"></div></div>
+          <div class="cag-amounts">11 340 🪙 / 15 000 🪙</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">= 1 134 € / 1 500 €</div>
+          <div class="cag-miss">Il manque 3 660 🪙 !</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.5rem;">🌱 Niv.1 → 📖 Niv.2 · 300 ex.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Activité récente</div></div>
+        <div id="activity-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Votes ce mois</div></div>
+        <div class="card-body">
+          <div class="vg-circles">
+            <div class="vg-circle on">1</div><div class="vg-circle on">2</div>
+            <div class="vg-circle">3</div><div class="vg-circle">4</div><div class="vg-circle">5</div>
+          </div>
+          <div class="vg-note">3 votes restants · Reset dans <span class="countdown" id="cd1">—</span></div>
+          <div style="margin-top:1.1rem; padding-top:1.1rem; border-top:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); line-height:2.2;">
+            ★★★★★ <strong style="color:var(--ink)">Voix d'os et de sel</strong><br>
+            ★★★★☆ <strong style="color:var(--ink)">Miel et cendres</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MES ŒUVRES -->
+  <div class="page" id="page-works">
+    <div class="pg-top">
+      <div><div class="pg-title">Mes œuvres</div><div class="pg-sub">3 publiées · 1 brouillon</div></div>
+      <a href="editor.html" class="btn-prim">+ Nouvelle</a>
+    </div>
+    <div class="card">
+      <table class="works-table" id="works-table"></table>
+    </div>
+  </div>
+
+  <!-- STATISTIQUES -->
+  <div class="page" id="page-analytics">
+    <div class="pg-top"><div><div class="pg-title">Statistiques</div><div class="pg-sub">Analyse de votre audience</div></div></div>
+    <div class="stats-row">
+      <div class="stat-card"><span class="sc-icon">👁</span><div class="sc-num">3 847</div><div class="sc-label">Vues totales</div></div>
+      <div class="stat-card"><span class="sc-icon">⏱</span><div class="sc-num">8,4</div><div class="sc-label">Min. moy. lecture</div></div>
+      <div class="stat-card"><span class="sc-icon">🔄</span><div class="sc-num">62%</div><div class="sc-label">Taux de retour</div></div>
+      <div class="stat-card"><span class="sc-icon">🌍</span><div class="sc-num">23</div><div class="sc-label">Pays représentés</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Provenance des lecteurs</div></div>
+      <div class="card-body" id="geo-chart" style="max-width:560px;"></div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="page" id="page-notifications">
+    <div class="pg-top">
+      <div><div class="pg-title">Notifications</div><div class="pg-sub">4 non lues</div></div>
+      <button class="btn-ghost" onclick="markAllRead()">Tout marquer lu</button>
+    </div>
+    <div class="card" id="notif-list"></div>
+  </div>
+
+  <!-- MES VOTES -->
+  <div class="page" id="page-votes">
+    <div class="pg-top"><div><div class="pg-title">Mes votes</div><div class="pg-sub">Vous soutenez la création libre.</div></div></div>
+    <div class="card" style="padding:1.4rem; margin-bottom:1rem;">
+      <div class="card-title" style="margin-bottom:0.9rem;">Votes utilisés ce mois</div>
+      <div class="vg-circles">
+        <div class="vg-circle on">1</div><div class="vg-circle on">2</div>
+        <div class="vg-circle">3</div><div class="vg-circle">4</div><div class="vg-circle">5</div>
+      </div>
+      <div class="vg-note" style="margin-top:0.7rem;">3 votes restants · Reset dans <span class="countdown" id="cd2">—</span></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Œuvres votées</div></div>
+      <div id="voted-list"></div>
+    </div>
+  </div>
+
+  <!-- PARAMÈTRES -->
+  <div class="page" id="page-settings">
+    <div class="pg-top"><div><div class="pg-title">Paramètres</div><div class="pg-sub">Profil et préférences</div></div></div>
+    <div class="settings-grid">
+      <div class="setting-card">
+        <h3>Profil public</h3>
+        <div class="fg"><label>Pseudo</label><input value="ousmane_n" readonly></div>
+        <div class="fg"><label>Nom d'auteur</label><input value="Ousmane Ndiaye"></div>
+        <div class="fg"><label>Bio</label><textarea>Romancier sénégalais, né à Dakar en 1989. Chroniqueur de la mémoire africaine.</textarea></div>
+        <div class="fg"><label>Site web</label><input placeholder="https://..."></div>
+        <button class="btn-save" onclick="alert('Profil sauvegardé.')">Sauvegarder</button>
+      </div>
+      <div class="setting-card">
+        <h3>Sécurité</h3>
+        <div class="fg"><label>Email</label><input value="ousmane@example.com" readonly></div>
+        <div class="fg"><label>Nouveau mot de passe</label><input type="password" placeholder="Laisser vide = inchangé"></div>
+        <div class="fg"><label>Confirmer</label><input type="password"></div>
+        <button class="btn-save" onclick="alert('Mis à jour.')">Mettre à jour</button>
+        <div style="margin-top:1.3rem; padding-top:1.1rem; border-top:1px solid var(--border);">
+          <h3 style="margin-bottom:0.8rem;">Notifications email</h3>
+          <label style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;cursor:pointer;margin-bottom:0.45rem;"><input type="checkbox" checked style="accent-color:var(--gold)"> Nouveaux votes</label>
+          <label style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;cursor:pointer;margin-bottom:0.45rem;"><input type="checkbox" checked style="accent-color:var(--gold)"> Nouveaux dons</label>
+          <label style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;cursor:pointer;"><input type="checkbox" style="accent-color:var(--gold)"> Digest hebdomadaire</label>
+        </div>
+      </div>
+      <div class="setting-card full">
+        <h3>Zone de danger</h3>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">La suppression est irréversible. Vos œuvres publiées sont conservées mais désindexées.</p>
+        <button style="padding:0.55rem 1.1rem;border:1.5px solid var(--error);background:none;color:var(--error);font-size:0.8rem;cursor:pointer;" onclick="if(confirm('Êtes-vous certain ?'))alert('Demande envoyée.')">Supprimer mon compte</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── NAVIGATION ──────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ── ACTIVITY ────────────────────────────────────────────
+const activities = [
+  { t:'donate', txt:'<strong>farida_z</strong> a soutenu <strong>Le Dernier Griot</strong> (€5)', time:'12 min' },
+  { t:'vote',   txt:'<strong>pierre_m</strong> a voté 5★ pour <strong>Le Dernier Griot</strong>',  time:'34 min' },
+  { t:'follow', txt:'<strong>aminata_d</strong> suit maintenant votre profil',                      time:'1h' },
+  { t:'donate', txt:'<strong>rafael_s</strong> a soutenu <strong>Le Dernier Griot</strong> (€2)',  time:'2h' },
+  { t:'vote',   txt:'<strong>zeynab_k</strong> a voté 4★ pour <strong>Le Dernier Griot</strong>',  time:'3h' },
+];
+document.getElementById('activity-list').innerHTML = activities.map(a =>
+  `<div class="act-item">
+    <div class="act-dot ${a.t}"></div>
+    <div class="act-txt">${a.txt}</div>
+    <div class="act-time">Il y a ${a.time}</div>
+  </div>`).join('');
+
+// ── WORKS TABLE ─────────────────────────────────────────
+const works = [
+  { id:'11', title:'Le Dernier Griot',              type:'Roman',    st:'published', v:3847, r:4.9, cag:11340, thr:15000 },
+  { id:'w2', title:'Contes du Baobab',              type:'Nouvelle', st:'published', v:1203, r:4.6, cag:6200,  thr:15000 },
+  { id:'w3', title:'Lettres à Koffi',               type:'Poésie',   st:'printed',   v:892,  r:4.8, cag:35000, thr:35000 },
+  { id:'w4', title:'La Rivière interdite (brouillon)',type:'Roman',  st:'draft',     v:0,    r:0,   cag:0,     thr:15000 },
+];
+const badge = { published:'<span class="badge b-pub">Publié</span>', draft:'<span class="badge b-draft">Brouillon</span>', printed:'<span class="badge b-print">Imprimé</span>' };
+document.getElementById('works-table').innerHTML =
+  `<thead><tr><th>Titre</th><th>Statut</th><th>Vues</th><th>Note</th><th>Cagnotte</th><th>Actions</th></tr></thead><tbody>` +
+  works.map(w => {
+    const pct = w.thr > 0 ? Math.min(100, w.cag / w.thr * 100) : 0;
+    return `<tr>
+      <td><div class="wt-title">${w.title}</div><div class="wt-type">${w.type}</div></td>
+      <td>${badge[w.st]}</td>
+      <td>${w.v.toLocaleString('fr')}</td>
+      <td>${w.r ? '★ ' + w.r : '—'}</td>
+      <td><div class="cag-inline"><span>${w.cag > 0 ? w.cag.toLocaleString('fr')+'🪙' : '—'}</span><div class="cag-bar"><div class="cag-bar-fill" style="width:${pct}%"></div></div></div></td>
+      <td><div class="td-actions">
+        <button class="td-btn" onclick="location.href='editor.html?id=${w.id}'">Éditer</button>
+        ${w.st !== 'draft' ? `<button class="td-btn" onclick="location.href='work.html?id=${w.id}'">Voir</button>` : ''}
+        ${w.st === 'draft' ? `<button class="td-btn del" onclick="if(confirm('Supprimer ?'))this.closest('tr').remove()">✕</button>` : ''}
+      </div></td>
+    </tr>`;
+  }).join('') + '</tbody>';
+
+// ── NOTIFICATIONS ────────────────────────────────────────
+const notifs = [
+  { u:true,  icon:'★',  txt:'<strong>234 votes</strong> reçus sur Le Dernier Griot ce mois.', time:'Il y a 10 min' },
+  { u:true,  icon:'♡',  txt:'Cagnotte à <strong>97%</strong>. Il manque €1,50 !',             time:'Il y a 1h' },
+  { u:true,  icon:'👥', txt:'<strong>aminata_d</strong> suit votre profil.',                   time:'Il y a 2h' },
+  { u:true,  icon:'✦',  txt:'Bienvenue dans LIBRUM. Votre compte est actif.',                  time:'15 jan. 2026' },
+  { u:false, icon:'📚', txt:'"Contes du Baobab" a été publiée.',                               time:'10 jan. 2026' },
+  { u:false, icon:'★',  txt:'Nouveau vote 5★ de <strong>pierre_m</strong>.',                   time:'8 jan. 2026' },
+];
+document.getElementById('notif-list').innerHTML = notifs.map(n =>
+  `<div class="notif-item ${n.u ? 'unread' : ''}" onclick="this.classList.remove('unread')">
+    <div class="ni-icon">${n.icon}</div>
+    <div><div class="ni-text">${n.txt}</div><div class="ni-time">${n.time}</div></div>
+  </div>`).join('');
+
+function markAllRead() {
+  document.querySelectorAll('.notif-item').forEach(n => n.classList.remove('unread'));
+  document.querySelectorAll('.sb-badge').forEach(b => b.remove());
+}
+
+// ── VOTED ────────────────────────────────────────────────
+document.getElementById('voted-list').innerHTML = [
+  { title:"Voix d'os et de sel", author:'nadia_m',  r:5, date:'2 mars 2026' },
+  { title:'Miel et cendres',     author:'farida_z', r:4, date:'28 fév. 2026' },
+].map(v =>
+  `<div class="act-item">
+    <div class="act-dot vote"></div>
+    <div class="act-txt"><strong>${v.title}</strong> par ${v.author} — ${'★'.repeat(v.r)}${'☆'.repeat(5-v.r)}</div>
+    <div class="act-time">${v.date}</div>
+  </div>`).join('');
+
+// ── COUNTDOWN ────────────────────────────────────────────
+function updateCountdown() {
+  const now  = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const d = Math.floor((next - now) / 86400000);
+  const h = Math.floor(((next - now) % 86400000) / 3600000);
+  const txt = d + 'j ' + h + 'h';
+  document.querySelectorAll('.countdown').forEach(el => el.textContent = txt);
+}
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+// ── GEO ──────────────────────────────────────────────────
+document.getElementById('geo-chart').innerHTML = [
+  ['France', 38], ['Sénégal', 22], ["Côte d'Ivoire", 12],
+  ['Belgique', 8], ['Maroc', 6], ['Autres', 14],
+].map(([c, v]) =>
+  `<div class="geo-row">
+    <div class="geo-name">${c}</div>
+    <div class="geo-wrap"><div class="geo-fill" style="width:${v * 2.2}%"></div></div>
+    <div class="geo-pct">${v}%</div>
+  </div>`).join('');
+
+// ── CHART ────────────────────────────────────────────────
+function drawChart() {
+  const canvas = document.getElementById('views-chart');
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth;
+  const H = 100;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const data = [45,67,89,120,98,145,167,89,134,178,156,189,201,145,167,198,234,189,210,245,178,234,267,189,223,256,189,234,267,290];
+  const max  = Math.max(...data);
+  const step = W / (data.length - 1);
+
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(184,151,42,0.25)');
+  grad.addColorStop(1, 'rgba(184,151,42,0)');
+
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = i * step, y = H - (v / max) * (H - 14) - 7;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#b8972a'; ctx.lineWidth = 2;
+  data.forEach((v, i) => {
+    const x = i * step, y = H - (v / max) * (H - 14) - 7;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+}
+
+window.addEventListener('load', () => {
+  drawChart();
+  setTimeout(() => { document.getElementById('cag-fill').style.width = '76%'; }, 400);
+});
+window.addEventListener('resize', drawChart);
+</script>
+</body>
+</html>

@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Éditeur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0e0c09; --parchment:#f9f4ec; --gold:#b8972a; --gold-light:#d4b04a;
+  --mist:#e8e2d8; --text:#2a2520; --text-muted:#7a7068; --border:#ddd8cf;
+  --sidebar:260px; --toolbar:52px; --statusbar:32px;
+  --white:#ffffff; --bg-editor:#fefcf8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family:'Inter',sans-serif;
+  background:var(--parchment);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+  height:var(--toolbar);
+  background:var(--ink);
+  display:flex;
+  align-items:center;
+  padding:0 1rem;
+  gap:0.5rem;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+.topbar-logo {
+  font-family:'Cinzel',serif;
+  font-size:1rem;
+  font-weight:700;
+  color:var(--parchment);
+  letter-spacing:0.15em;
+  text-decoration:none;
+  margin-right:1rem;
+}
+
+.topbar-logo span { color:var(--gold); }
+
+.topbar-title {
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+}
+
+.work-title-input {
+  background:transparent;
+  border:none;
+  outline:none;
+  font-family:'Cinzel',serif;
+  font-size:0.95rem;
+  font-weight:600;
+  color:var(--parchment);
+  letter-spacing:0.05em;
+  min-width:200px;
+  max-width:400px;
+}
+
+.work-title-input::placeholder { color:rgba(249,244,236,0.3); }
+
+.save-status {
+  font-size:0.72rem;
+  color:rgba(249,244,236,0.35);
+  letter-spacing:0.08em;
+  display:flex;
+  align-items:center;
+  gap:0.4rem;
+}
+
+.save-dot {
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:rgba(249,244,236,0.35);
+  transition:all 0.3s;
+}
+
+.save-dot.saving { background:var(--gold); animation:blink 0.5s ease infinite alternate; }
+.save-dot.saved { background:#4ade80; }
+
+@keyframes blink { from{opacity:1} to{opacity:0.3} }
+
+.topbar-actions {
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+}
+
+.tb-btn {
+  height:32px;
+  padding:0 0.8rem;
+  border:none;
+  cursor:pointer;
+  font-family:'Inter',sans-serif;
+  font-size:0.75rem;
+  font-weight:500;
+  letter-spacing:0.06em;
+  border-radius:2px;
+  transition:all 0.2s;
+  display:flex;
+  align-items:center;
+  gap:0.4rem;
+}
+
+.tb-btn-ghost {
+  background:rgba(255,255,255,0.06);
+  color:rgba(249,244,236,0.7);
+}
+
+.tb-btn-ghost:hover { background:rgba(255,255,255,0.12); color:var(--parchment); }
+
+.tb-btn-gold {
+  background:var(--gold);
+  color:var(--ink);
+  font-weight:600;
+}
+
+.tb-btn-gold:hover { background:var(--gold-light); }
+
+.word-count-badge {
+  font-size:0.72rem;
+  color:rgba(249,244,236,0.35);
+  padding:0 0.8rem;
+  border-left:1px solid rgba(255,255,255,0.08);
+}
+
+/* ===== MAIN LAYOUT ===== */
+.editor-layout {
+  display:flex;
+  flex:1;
+  overflow:hidden;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width:var(--sidebar);
+  background:#16140f;
+  border-right:1px solid rgba(255,255,255,0.04);
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+  overflow:hidden;
+}
+
+.sidebar-section {
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+
+.sidebar-header {
+  padding:0.6rem 1rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.sidebar-label {
+  font-size:0.65rem;
+  font-weight:600;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:rgba(249,244,236,0.25);
+}
+
+.sidebar-btn {
+  width:20px;
+  height:20px;
+  background:rgba(184,151,42,0.15);
+  border:none;
+  cursor:pointer;
+  color:var(--gold);
+  font-size:0.9rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:2px;
+  transition:all 0.2s;
+}
+
+.sidebar-btn:hover { background:rgba(184,151,42,0.3); }
+
+.chapters-list {
+  overflow-y:auto;
+  flex:1;
+  padding:0.3rem 0;
+}
+
+.chapter-item {
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+  padding:0.5rem 1rem;
+  cursor:pointer;
+  transition:background 0.15s;
+  border-left:3px solid transparent;
+}
+
+.chapter-item:hover { background:rgba(255,255,255,0.03); }
+
+.chapter-item.active {
+  background:rgba(184,151,42,0.08);
+  border-left-color:var(--gold);
+}
+
+.chapter-num {
+  font-size:0.65rem;
+  color:rgba(249,244,236,0.2);
+  font-weight:600;
+  min-width:18px;
+}
+
+.chapter-name {
+  font-size:0.82rem;
+  color:rgba(249,244,236,0.55);
+  flex:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.chapter-item.active .chapter-name { color:rgba(249,244,236,0.85); }
+
+.chapter-words {
+  font-size:0.65rem;
+  color:rgba(249,244,236,0.2);
+}
+
+/* Stats sidebar */
+.stats-panel {
+  padding:1rem;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.6rem;
+}
+
+.stat-box {
+  background:rgba(255,255,255,0.03);
+  padding:0.6rem;
+  border-radius:2px;
+  text-align:center;
+}
+
+.stat-box-num {
+  font-family:'Cinzel',serif;
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--gold);
+  display:block;
+}
+
+.stat-box-label {
+  font-size:0.6rem;
+  color:rgba(249,244,236,0.25);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin-top:0.2rem;
+}
+
+/* ===== FORMATTING TOOLBAR ===== */
+.format-toolbar {
+  height:40px;
+  background:white;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:0 1rem;
+  gap:0.2rem;
+  flex-shrink:0;
+}
+
+.fmt-btn {
+  width:28px;
+  height:28px;
+  border:none;
+  background:none;
+  cursor:pointer;
+  font-size:0.85rem;
+  color:var(--text-muted);
+  border-radius:2px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.15s;
+}
+
+.fmt-btn:hover { background:var(--mist); color:var(--ink); }
+.fmt-btn.active { background:rgba(184,151,42,0.15); color:var(--gold); }
+
+.fmt-sep {
+  width:1px;
+  height:18px;
+  background:var(--border);
+  margin:0 0.3rem;
+}
+
+.fmt-select {
+  height:26px;
+  padding:0 0.5rem;
+  border:1px solid var(--border);
+  border-radius:2px;
+  font-size:0.78rem;
+  color:var(--text);
+  background:white;
+  outline:none;
+  cursor:pointer;
+}
+
+/* ===== EDITOR AREA ===== */
+.editor-main {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.editor-scroll {
+  flex:1;
+  overflow-y:auto;
+  background:var(--bg-editor);
+  display:flex;
+  justify-content:center;
+  padding:3rem 2rem;
+}
+
+.editor-page {
+  width:100%;
+  max-width:680px;
+  min-height:800px;
+  background:white;
+  box-shadow:0 2px 20px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+  padding:4rem 5rem;
+}
+
+.chapter-heading {
+  font-family:'Cinzel',serif;
+  font-size:1.1rem;
+  font-weight:600;
+  color:var(--text-muted);
+  margin-bottom:2.5rem;
+  padding-bottom:1rem;
+  border-bottom:1px solid var(--border);
+  letter-spacing:0.08em;
+  outline:none;
+}
+
+#editor-content {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.2rem;
+  line-height:1.9;
+  color:var(--text);
+  min-height:600px;
+  outline:none;
+  caret-color:var(--gold);
+}
+
+#editor-content:empty::before {
+  content:attr(data-placeholder);
+  color:var(--text-muted);
+  opacity:0.4;
+  pointer-events:none;
+}
+
+/* Scenario mode */
+body.scenario-mode #editor-content {
+  font-family:'Courier Prime',monospace;
+  font-size:1rem;
+  line-height:1.6;
+}
+
+/* ===== AI PANEL ===== */
+.ai-panel {
+  width:320px;
+  background:var(--ink);
+  border-left:1px solid rgba(255,255,255,0.05);
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+  transform:translateX(320px);
+  transition:transform 0.3s ease;
+}
+
+.ai-panel.open { transform:translateX(0); }
+
+.ai-header {
+  padding:1rem;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.ai-title {
+  font-family:'Cinzel',serif;
+  font-size:0.82rem;
+  font-weight:600;
+  color:var(--gold);
+  letter-spacing:0.1em;
+}
+
+.ai-close {
+  background:none;
+  border:none;
+  color:rgba(249,244,236,0.35);
+  cursor:pointer;
+  font-size:1.1rem;
+  transition:color 0.2s;
+}
+
+.ai-close:hover { color:var(--parchment); }
+
+.ai-tools {
+  padding:0.8rem;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.4rem;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+.ai-tool-btn {
+  padding:0.5rem;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:3px;
+  cursor:pointer;
+  text-align:left;
+  transition:all 0.2s;
+}
+
+.ai-tool-btn:hover { background:rgba(184,151,42,0.1); border-color:rgba(184,151,42,0.3); }
+
+.ai-tool-icon { font-size:0.9rem; margin-bottom:0.2rem; display:block; }
+
+.ai-tool-name {
+  font-size:0.72rem;
+  font-weight:500;
+  color:rgba(249,244,236,0.65);
+  display:block;
+}
+
+.ai-chat {
+  flex:1;
+  overflow-y:auto;
+  padding:0.8rem;
+  display:flex;
+  flex-direction:column;
+  gap:0.8rem;
+}
+
+.ai-msg {
+  max-width:90%;
+  padding:0.7rem 0.9rem;
+  border-radius:3px;
+  font-size:0.82rem;
+  line-height:1.6;
+}
+
+.ai-msg.user {
+  background:rgba(184,151,42,0.12);
+  color:rgba(249,244,236,0.75);
+  align-self:flex-end;
+  border:1px solid rgba(184,151,42,0.2);
+}
+
+.ai-msg.assistant {
+  background:rgba(255,255,255,0.04);
+  color:rgba(249,244,236,0.65);
+  align-self:flex-start;
+  border:1px solid rgba(255,255,255,0.06);
+}
+
+.ai-msg.assistant strong { color:var(--gold); }
+
+.ai-typing {
+  display:flex;
+  gap:4px;
+  align-items:center;
+  padding:0.5rem;
+}
+
+.ai-typing span {
+  width:6px;
+  height:6px;
+  background:var(--gold);
+  border-radius:50%;
+  animation:typing 1.2s ease infinite;
+}
+
+.ai-typing span:nth-child(2) { animation-delay:0.2s; }
+.ai-typing span:nth-child(3) { animation-delay:0.4s; }
+
+@keyframes typing {
+  0%,60%,100% { transform:translateY(0); opacity:0.3; }
+  30% { transform:translateY(-6px); opacity:1; }
+}
+
+.ai-input-row {
+  padding:0.8rem;
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;
+  gap:0.5rem;
+}
+
+.ai-input {
+  flex:1;
+  padding:0.6rem 0.8rem;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:2px;
+  font-size:0.82rem;
+  color:var(--parchment);
+  outline:none;
+  font-family:'Inter',sans-serif;
+  transition:border-color 0.2s;
+}
+
+.ai-input:focus { border-color:rgba(184,151,42,0.5); }
+.ai-input::placeholder { color:rgba(249,244,236,0.2); }
+
+.ai-send {
+  width:32px;
+  height:32px;
+  background:var(--gold);
+  border:none;
+  cursor:pointer;
+  border-radius:2px;
+  color:var(--ink);
+  font-size:0.9rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.2s;
+}
+
+.ai-send:hover { background:var(--gold-light); }
+
+/* ===== STATUS BAR ===== */
+.statusbar {
+  height:var(--statusbar);
+  background:var(--ink);
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;
+  align-items:center;
+  padding:0 1rem;
+  gap:1.5rem;
+  flex-shrink:0;
+}
+
+.sb-item {
+  font-size:0.68rem;
+  color:rgba(249,244,236,0.3);
+  letter-spacing:0.06em;
+  display:flex;
+  align-items:center;
+  gap:0.3rem;
+}
+
+.sb-item span { color:rgba(249,244,236,0.55); }
+
+/* ===== FOCUS MODE ===== */
+body.focus-mode .sidebar,
+body.focus-mode .format-toolbar,
+body.focus-mode .statusbar,
+body.focus-mode .topbar-actions .tb-btn:not(.tb-btn-focus) { opacity:0; pointer-events:none; }
+
+body.focus-mode .editor-page {
+  box-shadow:none;
+  max-width:640px;
+}
+
+/* ===== PUBLISH MODAL ===== */
+.modal-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(14,12,9,0.8);
+  z-index:200;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  backdrop-filter:blur(4px);
+}
+
+.modal-overlay.open { display:flex; }
+
+.modal {
+  background:var(--parchment);
+  width:540px;
+  max-height:80vh;
+  overflow-y:auto;
+  padding:2.5rem;
+  animation:slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform:translateY(20px); opacity:0; }
+  to { transform:translateY(0); opacity:1; }
+}
+
+.modal-title {
+  font-family:'Cinzel',serif;
+  font-size:1.3rem;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:0.5rem;
+}
+
+.modal-subtitle {
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  color:var(--text-muted);
+  margin-bottom:1.5rem;
+}
+
+.modal-form .form-group { margin-bottom:1rem; }
+
+.modal-form label {
+  display:block;
+  font-size:0.72rem;
+  font-weight:600;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  margin-bottom:0.4rem;
+}
+
+.modal-form input, .modal-form select, .modal-form textarea {
+  width:100%;
+  padding:0.75rem 0.9rem;
+  border:1.5px solid var(--border);
+  border-radius:2px;
+  font-family:'Inter',sans-serif;
+  font-size:0.9rem;
+  color:var(--text);
+  background:white;
+  outline:none;
+  transition:border-color 0.2s;
+}
+
+.modal-form input:focus, .modal-form select:focus, .modal-form textarea:focus {
+  border-color:var(--gold);
+}
+
+.modal-form textarea { height:100px; resize:vertical; font-family:'Cormorant Garamond',serif; font-size:1rem; }
+
+.modal-actions {
+  display:flex;
+  gap:1rem;
+  margin-top:1.5rem;
+}
+
+.btn-publish {
+  flex:1;
+  padding:0.9rem;
+  background:var(--ink);
+  color:var(--parchment);
+  font-family:'Cinzel',serif;
+  font-size:0.85rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  border:none;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+
+.btn-publish:hover { background:var(--gold); color:var(--ink); }
+
+.btn-cancel {
+  padding:0.9rem 1.5rem;
+  background:none;
+  border:1.5px solid var(--border);
+  font-size:0.85rem;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.btn-cancel:hover { border-color:var(--text-muted); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="index.html" class="topbar-logo">LIBR<span>UM</span></a>
+  <div class="topbar-title">
+    <input class="work-title-input" id="work-title" value="Sans titre" placeholder="Titre de l'œuvre" onchange="scheduleAutoSave()">
+    <div class="save-status">
+      <div class="save-dot" id="save-dot"></div>
+      <span id="save-status-text">—</span>
+    </div>
+  </div>
+  <div class="word-count-badge" id="wc-badge">0 mot</div>
+  <div class="topbar-actions">
+    <button class="tb-btn tb-btn-ghost" onclick="toggleFocus()" title="Mode focus">⊞</button>
+    <button class="tb-btn tb-btn-ghost" onclick="toggleAI()">✦ IA</button>
+    <button class="tb-btn tb-btn-ghost" onclick="exportPDF()">↓ PDF</button>
+    <button class="tb-btn tb-btn-gold" onclick="openPublish()">Publier →</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="editor-layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-header">
+        <span class="sidebar-label">Chapitres</span>
+        <button class="sidebar-btn" onclick="addChapter()" title="Ajouter un chapitre">+</button>
+      </div>
+      <div class="chapters-list" id="chapters-list"></div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1;">
+      <div class="sidebar-header">
+        <span class="sidebar-label">Statistiques</span>
+      </div>
+      <div class="stats-panel">
+        <div class="stat-box">
+          <span class="stat-box-num" id="stat-words">0</span>
+          <div class="stat-box-label">Mots</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-num" id="stat-chars">0</span>
+          <div class="stat-box-label">Caractères</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-num" id="stat-pages">0</span>
+          <div class="stat-box-label">Pages est.</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-num" id="stat-read">0</span>
+          <div class="stat-box-label">Min. lecture</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR MAIN -->
+  <div class="editor-main">
+    <!-- FORMAT TOOLBAR -->
+    <div class="format-toolbar">
+      <select class="fmt-select" id="paragraph-style" onchange="applyStyle(this.value)">
+        <option value="p">Paragraphe</option>
+        <option value="h2">Titre</option>
+        <option value="h3">Sous-titre</option>
+        <option value="blockquote">Citation</option>
+      </select>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn" onclick="exec('bold')" title="Gras"><b>B</b></button>
+      <button class="fmt-btn" onclick="exec('italic')" title="Italique"><i>I</i></button>
+      <button class="fmt-btn" onclick="exec('underline')" title="Souligné"><u>U</u></button>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn" onclick="exec('justifyLeft')" title="Gauche">⇐</button>
+      <button class="fmt-btn" onclick="exec('justifyCenter')" title="Centré">⇔</button>
+      <button class="fmt-btn" onclick="exec('justifyRight')" title="Droite">⇒</button>
+      <button class="fmt-btn" onclick="exec('justifyFull')" title="Justifié">☰</button>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn" onclick="exec('insertUnorderedList')" title="Liste">•</button>
+      <button class="fmt-btn" onclick="exec('undo')" title="Annuler">↩</button>
+      <button class="fmt-btn" onclick="exec('redo')" title="Refaire">↪</button>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn" id="mode-btn" onclick="toggleMode()" title="Mode scénario">🎬</button>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="editor-scroll">
+      <div class="editor-page">
+        <div class="chapter-heading" id="chapter-heading" contenteditable="true" onkeypress="return event.key!=='Enter'" onblur="updateChapterName()">
+          Chapitre 1
+        </div>
+        <div id="editor-content"
+             contenteditable="true"
+             data-placeholder="Commencez à écrire votre histoire ici… ou demandez à l'IA de vous lancer."
+             oninput="onEditorInput()"
+             onkeydown="handleShortcuts(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI PANEL -->
+  <div class="ai-panel" id="ai-panel">
+    <div class="ai-header">
+      <div class="ai-title">✦ Assistant IA</div>
+      <button class="ai-close" onclick="toggleAI()">✕</button>
+    </div>
+
+    <div class="ai-tools">
+      <button class="ai-tool-btn" onclick="aiAction('correct')">
+        <span class="ai-tool-icon">✓</span>
+        <span class="ai-tool-name">Corriger</span>
+      </button>
+      <button class="ai-tool-btn" onclick="aiAction('rephrase')">
+        <span class="ai-tool-icon">↺</span>
+        <span class="ai-tool-name">Reformuler</span>
+      </button>
+      <button class="ai-tool-btn" onclick="aiAction('continue')">
+        <span class="ai-tool-icon">→</span>
+        <span class="ai-tool-name">Continuer</span>
+      </button>
+      <button class="ai-tool-btn" onclick="aiAction('analyze')">
+        <span class="ai-tool-icon">◎</span>
+        <span class="ai-tool-name">Analyser</span>
+      </button>
+      <button class="ai-tool-btn" onclick="aiAction('synopsis')">
+        <span class="ai-tool-icon">📋</span>
+        <span class="ai-tool-name">Synopsis</span>
+      </button>
+      <button class="ai-tool-btn" onclick="aiAction('unblock')">
+        <span class="ai-tool-icon">💡</span>
+        <span class="ai-tool-name">Débloquer</span>
+      </button>
+    </div>
+
+    <div class="ai-chat" id="ai-chat">
+      <div class="ai-msg assistant">
+        Bonjour. Je suis votre co-auteur IA. Sélectionnez du texte et utilisez les outils ci-dessus, ou posez-moi n'importe quelle question sur votre œuvre.
+        <br><br>
+        <strong>Astuce :</strong> Sélectionnez un passage et cliquez "Reformuler" pour 3 variantes.
+      </div>
+    </div>
+
+    <div class="ai-input-row">
+      <input class="ai-input" id="ai-input" placeholder="Demandez quelque chose…" onkeypress="if(event.key==='Enter')sendAIMessage()">
+      <button class="ai-send" onclick="sendAIMessage()">→</button>
+    </div>
+  </div>
+
+</div><!-- /editor-layout -->
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="sb-item">Mode : <span id="sb-mode">Roman</span></div>
+  <div class="sb-item">Chapitre : <span id="sb-chapter">1 / 1</span></div>
+  <div class="sb-item">Position : <span id="sb-pos">1:1</span></div>
+  <div class="sb-item" id="sb-save">Dernière sauvegarde : <span id="sb-save-time">—</span></div>
+</div>
+
+<!-- PUBLISH MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closePublish()">
+  <div class="modal">
+    <div class="modal-title">Publier l'œuvre</div>
+    <p class="modal-subtitle">Une fois publiée, votre œuvre rejoint le catalogue et peut être votée et soutenue par la communauté.</p>
+
+    <div class="modal-form">
+      <div class="form-group">
+        <label>Type d'œuvre *</label>
+        <select id="pub-type">
+          <option value="roman">Roman</option>
+          <option value="nouvelle">Nouvelle</option>
+          <option value="poesie">Poésie / Recueil</option>
+          <option value="essai">Essai / Philosophie</option>
+          <option value="scenario_film">Scénario Film</option>
+          <option value="scenario_serie">Scénario Série</option>
+          <option value="scenario_court">Court Métrage</option>
+          <option value="bd">Bande Dessinée</option>
+          <option value="jeunesse">Livre Jeunesse</option>
+          <option value="biographie">Biographie / Mémoires</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Genre littéraire</label>
+        <input type="text" id="pub-genre" placeholder="ex: Thriller psychologique, Science-fiction…">
+      </div>
+      <div class="form-group">
+        <label>Description / 4ème de couverture *</label>
+        <textarea id="pub-desc" placeholder="Résumé accrocheur de votre œuvre. Ce que le lecteur verra en premier."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Tags (séparés par des virgules)</label>
+        <input type="text" id="pub-tags" placeholder="amour, aventure, dystopie…">
+      </div>
+      <div class="form-group">
+        <label>Langue de l'œuvre</label>
+        <select id="pub-lang">
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+          <option value="es">Español</option>
+          <option value="pt">Português</option>
+          <option value="de">Deutsch</option>
+          <option value="it">Italiano</option>
+          <option value="zh">中文</option>
+          <option value="ru">Русский</option>
+          <option value="tr">Türkçe</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;">
+        <input type="checkbox" id="pub-adult" style="accent-color:var(--gold);">
+        <label for="pub-adult" style="font-size:0.82rem;color:var(--text-muted);cursor:pointer;">Contenu adulte (18+)</label>
+      </div>
+    </div>
+
+    <div style="background:#f0ece4;border-left:3px solid var(--gold);padding:0.8rem 1rem;font-size:0.8rem;line-height:1.6;color:var(--text-muted);margin-bottom:1rem;">
+      ✓ Vos droits d'auteur sont préservés intégralement.<br>
+      ✓ Un horodatage permanent est créé à la publication.<br>
+      ✓ Un watermark discret (ID + date) est intégré aux exports PDF.
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closePublish()">Annuler</button>
+      <button class="btn-publish" onclick="doPublish()">Publier maintenant →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let chapters = [{ id:1, title:'Chapitre 1', content:'', words:0 }];
+let currentChapter = 0;
+let isScenarioMode = false;
+let autoSaveTimer = null;
+let aiOpen = false;
+
+const API = 'http://localhost:3001/api';
+const workId = new URLSearchParams(location.search).get('id') || null;
+
+// ===== INIT =====
+function init() {
+  renderChapterList();
+  loadChapter(0);
+  updateStats();
+  startAutoSave();
+}
+
+// ===== CHAPTERS =====
+function renderChapterList() {
+  const list = document.getElementById('chapters-list');
+  list.innerHTML = chapters.map((ch, i) => `
+    <div class="chapter-item ${i===currentChapter?'active':''}" onclick="switchChapter(${i})">
+      <span class="chapter-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="chapter-name">${ch.title}</span>
+      <span class="chapter-words">${ch.words}m</span>
+    </div>
+  `).join('');
+}
+
+function addChapter() {
+  saveCurrentChapter();
+  const num = chapters.length + 1;
+  chapters.push({ id:num, title:`Chapitre ${num}`, content:'', words:0 });
+  switchChapter(chapters.length - 1);
+}
+
+function switchChapter(idx) {
+  saveCurrentChapter();
+  currentChapter = idx;
+  loadChapter(idx);
+  renderChapterList();
+  document.getElementById('sb-chapter').textContent = `${idx+1} / ${chapters.length}`;
+}
+
+function loadChapter(idx) {
+  const ch = chapters[idx];
+  document.getElementById('chapter-heading').textContent = ch.title;
+  document.getElementById('editor-content').innerHTML = ch.content;
+  updateStats();
+}
+
+function saveCurrentChapter() {
+  const content = document.getElementById('editor-content').innerHTML;
+  const text = document.getElementById('editor-content').innerText;
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  chapters[currentChapter].content = content;
+  chapters[currentChapter].words = words;
+}
+
+function updateChapterName() {
+  const name = document.getElementById('chapter-heading').textContent.trim();
+  chapters[currentChapter].title = name || `Chapitre ${currentChapter+1}`;
+  renderChapterList();
+}
+
+// ===== EDITOR INPUT =====
+function onEditorInput() {
+  updateStats();
+  scheduleAutoSave();
+  checkIdleAI();
+}
+
+function updateStats() {
+  const text = document.getElementById('editor-content').innerText || '';
+  const allText = chapters.map((c,i) => i===currentChapter
+    ? text
+    : c.content.replace(/<[^>]*>/g,'')
+  ).join(' ');
+
+  const words = allText.trim().split(/\s+/).filter(Boolean).length;
+  const chars = allText.replace(/\s/g,'').length;
+  const pages = Math.max(1, Math.ceil(words / 250));
+  const readMin = Math.max(1, Math.ceil(words / 200));
+
+  document.getElementById('stat-words').textContent = words.toLocaleString('fr');
+  document.getElementById('stat-chars').textContent = chars.toLocaleString('fr');
+  document.getElementById('stat-pages').textContent = pages;
+  document.getElementById('stat-read').textContent = readMin;
+
+  const wcBadge = document.getElementById('wc-badge');
+  wcBadge.textContent = `${words.toLocaleString('fr')} mot${words!==1?'s':''}`;
+
+  saveCurrentChapter();
+  renderChapterList();
+}
+
+// ===== AUTO SAVE =====
+function scheduleAutoSave() {
+  const dot = document.getElementById('save-dot');
+  const txt = document.getElementById('save-status-text');
+  dot.className = 'save-dot saving';
+  txt.textContent = 'Modification…';
+
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(doAutoSave, 2000);
+}
+
+function startAutoSave() {
+  setInterval(() => {
+    if (document.getElementById('save-dot').classList.contains('saving')) return;
+    doAutoSave();
+  }, 30000);
+}
+
+async function doAutoSave() {
+  const dot = document.getElementById('save-dot');
+  const txt = document.getElementById('save-status-text');
+  saveCurrentChapter();
+
+  // TODO: appel API save
+  await new Promise(r => setTimeout(r, 200));
+
+  dot.className = 'save-dot saved';
+  const now = new Date();
+  const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  txt.textContent = `Sauvegardé ${time}`;
+  document.getElementById('sb-save-time').textContent = time;
+
+  setTimeout(() => {
+    dot.className = 'save-dot';
+    txt.textContent = '—';
+  }, 4000);
+}
+
+// ===== FORMATTING =====
+function exec(cmd) { document.execCommand(cmd, false, null); document.getElementById('editor-content').focus(); }
+
+function applyStyle(tag) {
+  document.execCommand('formatBlock', false, tag);
+  document.getElementById('editor-content').focus();
+}
+
+function handleShortcuts(e) {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 's') { e.preventDefault(); doAutoSave(); }
+    if (e.key === 'b') { e.preventDefault(); exec('bold'); }
+    if (e.key === 'i') { e.preventDefault(); exec('italic'); }
+    if (e.key === 'Enter') { e.preventDefault(); addChapter(); }
+  }
+  updateCursorPos();
+}
+
+function updateCursorPos() {
+  // Estimation position curseur
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount) {
+    const range = sel.getRangeAt(0);
+    const text = range.startContainer.textContent || '';
+    const pos = range.startOffset;
+    document.getElementById('sb-pos').textContent = `${pos}`;
+  }
+}
+
+// ===== MODES =====
+function toggleMode() {
+  isScenarioMode = !isScenarioMode;
+  document.body.classList.toggle('scenario-mode', isScenarioMode);
+  document.getElementById('sb-mode').textContent = isScenarioMode ? 'Scénario' : 'Roman';
+  document.getElementById('mode-btn').style.opacity = isScenarioMode ? '1' : '0.5';
+
+  if (isScenarioMode) {
+    document.getElementById('editor-content').setAttribute('data-placeholder',
+      'INT. LIEU — JOUR\n\nDescription de l\'action...\n\nPERSONNAGE\n\t(parenthétique)\nDialogue...'
+    );
+  } else {
+    document.getElementById('editor-content').setAttribute('data-placeholder',
+      'Commencez à écrire votre histoire ici… ou demandez à l\'IA de vous lancer.'
+    );
+  }
+}
+
+function toggleFocus() {
+  document.body.classList.toggle('focus-mode');
+}
+
+// ===== AI PANEL =====
+function toggleAI() {
+  aiOpen = !aiOpen;
+  document.getElementById('ai-panel').classList.toggle('open', aiOpen);
+}
+
+let idleTimer = null;
+function checkIdleAI() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    if (!aiOpen) {
+      const text = document.getElementById('editor-content').innerText;
+      if (text.length > 50) {
+        addAIMessage('assistant', '💡 Vous semblez ralenti. Voulez-vous que je vous propose une piste pour continuer ? Tapez "aide" ou cliquez sur "Débloquer".');
+        if (!aiOpen) toggleAI();
+      }
+    }
+  }, 5 * 60 * 1000); // 5 minutes d'inactivité
+}
+
+async function aiAction(action) {
+  const selection = window.getSelection().toString().trim();
+  const fullText = document.getElementById('editor-content').innerText.trim();
+
+  const prompts = {
+    correct: selection
+      ? `Corrige les fautes dans ce passage (orthographe, grammaire, style) :\n\n"${selection}"`
+      : `Analyse le style général et signale les principales fautes dans :\n\n"${fullText.slice(0,500)}"`,
+    rephrase: selection
+      ? `Propose 3 façons de reformuler ce passage avec des registres différents :\n\n"${selection}"`
+      : 'Sélectionnez un passage à reformuler.',
+    continue: `Suite logique et cohérente de ce texte (2-3 paragraphes dans le même style) :\n\n"...${fullText.slice(-300)}"`,
+    analyze: `Analyse structurelle et narrative de cette oeuvre. Points forts, faiblesses, suggestions :\n\n"${fullText.slice(0,800)}"`,
+    synopsis: `Rédige un synopsis accrocheur de 150 mots pour la 4ème de couverture à partir de :\n\n"${fullText.slice(0,600)}"`,
+    unblock: `L'auteur est bloqué. À partir du contexte suivant, propose 3 pistes narratives différentes :\n\n"...${fullText.slice(-200)}"`
+  };
+
+  const prompt = prompts[action];
+  if (!prompt) return;
+
+  addAIMessage('user', `[${action}] ${selection ? `"${selection.slice(0,60)}…"` : 'Texte complet'}`);
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'Tu es un co-auteur littéraire expert. Aide l\'auteur de façon précise, concise et bienveillante. Réponds en français.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    hideTyping();
+    const text = data.content?.[0]?.text || 'Erreur de réponse IA.';
+    addAIMessage('assistant', text);
+  } catch(e) {
+    hideTyping();
+    addAIMessage('assistant', 'Service IA temporairement indisponible. Vérifiez votre connexion.');
+  }
+}
+
+async function sendAIMessage() {
+  const input = document.getElementById('ai-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  addAIMessage('user', msg);
+  showTyping();
+
+  const context = document.getElementById('editor-content').innerText.trim().slice(-500);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`Tu es un co-auteur littéraire expert. L'auteur travaille sur cette œuvre :\n\n"...${context}"\n\nAide-le avec précision et bienveillance. Réponds en français.`,
+        messages:[{role:'user',content:msg}]
+      })
+    });
+    const data = await res.json();
+    hideTyping();
+    addAIMessage('assistant', data.content?.[0]?.text || 'Erreur.');
+  } catch(e) {
+    hideTyping();
+    addAIMessage('assistant', 'Service IA indisponible.');
+  }
+}
+
+function addAIMessage(role, text) {
+  const chat = document.getElementById('ai-chat');
+  const el = document.createElement('div');
+  el.className = `ai-msg ${role}`;
+  el.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+  if (!aiOpen) toggleAI();
+}
+
+let typingEl = null;
+function showTyping() {
+  if (typingEl) return;
+  const chat = document.getElementById('ai-chat');
+  typingEl = document.createElement('div');
+  typingEl.className = 'ai-msg assistant';
+  typingEl.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>';
+  chat.appendChild(typingEl);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function hideTyping() {
+  if (typingEl) { typingEl.remove(); typingEl = null; }
+}
+
+// ===== PUBLISH MODAL =====
+function openPublish() { document.getElementById('modal-overlay').classList.add('open'); }
+function closePublish() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+async function doPublish() {
+  const desc = document.getElementById('pub-desc').value.trim();
+  if (!desc) { alert('La description (4ème de couverture) est requise.'); return; }
+
+  const title = document.getElementById('work-title').value.trim();
+  if (!title || title === 'Sans titre') { closePublish(); alert('Donnez un titre à votre œuvre.'); return; }
+
+  saveCurrentChapter();
+  const allText = chapters.map(c => c.content.replace(/<[^>]*>/g,'')).join(' ');
+  const words = allText.trim().split(/\s+/).filter(Boolean).length;
+
+  if (words < 100) { alert(`Votre œuvre contient ${words} mots. Minimum 100 mots requis.`); return; }
+
+  // TODO: appel API publish
+  closePublish();
+  addAIMessage('assistant', `🎉 **Félicitations !** Votre œuvre "${title}" (${words.toLocaleString('fr')} mots) a été publiée. Elle est maintenant visible dans le catalogue et peut être soutenue par la communauté. Bonne chance !`);
+}
+
+// ===== EXPORT PDF =====
+function exportPDF() {
+  window.print();
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

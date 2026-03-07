@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Livre d'Or</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="currency.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0e0c09;--parchment:#f9f4ec;--gold:#b8972a;--gold-light:#d4b04a;--mist:#e8e2d8;--text:#2a2520;--text-muted:#7a7068;--border:#ddd8cf;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--parchment);}
+nav{position:sticky;top:0;z-index:50;background:rgba(14,12,9,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.05);padding:0 3rem;height:56px;display:flex;align-items:center;gap:2rem;}
+.nav-logo{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;color:var(--parchment);text-decoration:none;letter-spacing:0.15em;}
+.nav-logo span{color:var(--gold);}
+.nav-spacer{flex:1;}
+.nav-link{font-size:0.78rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-decoration:none;transition:color 0.2s;}
+.nav-link:hover{color:var(--gold);}
+.nav-btn{padding:0.45rem 1.2rem;background:var(--gold);color:var(--ink);font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-decoration:none;}
+
+/* HERO */
+.lor-hero{padding:5rem 3rem 4rem;text-align:center;position:relative;overflow:hidden;}
+.lor-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(184,151,42,0.15) 0%,transparent 60%);pointer-events:none;}
+.lor-icon{font-size:4rem;margin-bottom:1.5rem;display:block;}
+.lor-title{font-family:'Cinzel',serif;font-size:3rem;font-weight:700;letter-spacing:0.05em;margin-bottom:1rem;}
+.lor-title span{color:var(--gold);}
+.lor-subtitle{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:rgba(255,255,255,0.5);max-width:600px;margin:0 auto 2rem;}
+.lor-stats{display:flex;justify-content:center;gap:3rem;}
+.ls-item{text-align:center;}
+.ls-num{font-family:'Cinzel',serif;font-size:2rem;font-weight:700;color:var(--gold);display:block;}
+.ls-label{font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);}
+
+/* YEAR FILTER */
+.year-filter{display:flex;justify-content:center;gap:0.5rem;padding:2rem;border-bottom:1px solid rgba(255,255,255,0.04);}
+.yf-btn{padding:0.4rem 1rem;border:1px solid rgba(255,255,255,0.08);background:none;color:rgba(255,255,255,0.4);font-size:0.82rem;cursor:pointer;transition:all 0.2s;font-family:'Cinzel',serif;letter-spacing:0.08em;}
+.yf-btn:hover{border-color:rgba(184,151,42,0.3);color:var(--gold);}
+.yf-btn.active{border-color:var(--gold);background:rgba(184,151,42,0.1);color:var(--parchment);}
+
+/* CATEGORY SECTIONS */
+.lor-content{max-width:1100px;margin:0 auto;padding:3rem;}
+.category-section{margin-bottom:4rem;}
+.cat-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+.cat-line{flex:1;height:1px;background:rgba(255,255,255,0.06);}
+.cat-title{font-family:'Cinzel',serif;font-size:0.8rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);white-space:nowrap;}
+
+/* WINNER CARD */
+.winners-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;}
+.winner-card{background:linear-gradient(145deg,#16130e,#1a1610);border:1px solid rgba(184,151,42,0.15);position:relative;overflow:hidden;transition:all 0.3s;}
+.winner-card:hover{transform:translateY(-4px);border-color:rgba(184,151,42,0.35);box-shadow:0 12px 40px rgba(0,0,0,0.4);}
+.winner-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 0%,rgba(184,151,42,0.06),transparent 60%);pointer-events:none;}
+.wc-month-badge{position:absolute;top:1rem;right:1rem;font-size:0.6rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);opacity:0.7;}
+.wc-cover{width:100%;height:160px;display:flex;align-items:center;justify-content:center;position:relative;}
+.cover-roman{background:linear-gradient(135deg,#1a2744,#0e1830);}
+.cover-nouvelle{background:linear-gradient(135deg,#2a1a1a,#1a0e0e);}
+.cover-poesie{background:linear-gradient(135deg,#1a1a2a,#0e0e1a);}
+.cover-essai{background:linear-gradient(135deg,#1a2420,#0e1610);}
+.cover-scenario{background:linear-gradient(135deg,#1a1010,#100808);}
+.cover-bd{background:linear-gradient(135deg,#201a00,#100d00);}
+.wc-cover-title{font-family:'Cinzel',serif;font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.5);text-align:center;padding:1rem;line-height:1.4;}
+.trophy-icon{position:absolute;bottom:0.5rem;right:0.5rem;font-size:1.5rem;}
+.wc-body{padding:1.2rem;}
+.wc-type{font-size:0.62rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);opacity:0.7;margin-bottom:0.4rem;}
+.wc-title{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--parchment);margin-bottom:0.3rem;line-height:1.3;}
+.wc-author{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:rgba(255,255,255,0.5);margin-bottom:0.8rem;}
+.wc-quote{font-family:'Cormorant Garamond',serif;font-size:0.95rem;font-style:italic;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:1rem;border-left:2px solid rgba(184,151,42,0.2);padding-left:0.8rem;}
+.wc-stats{display:flex;gap:1rem;font-size:0.72rem;color:rgba(255,255,255,0.25);}
+.wc-stats span{color:var(--gold);}
+.wc-cagnotte{margin-top:0.8rem;background:rgba(184,151,42,0.06);border:1px solid rgba(184,151,42,0.1);padding:0.6rem;display:flex;align-items:center;justify-content:space-between;}
+.wcc-label{font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);}
+.wcc-amount{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold);}
+.wcc-note{font-size:0.65rem;color:rgba(255,255,255,0.25);}
+.print-stamp{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.7rem;border:1px solid rgba(184,151,42,0.3);font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-top:0.5rem;}
+
+/* INSCRIPTION PLAQUE */
+.inscription{text-align:center;padding:4rem 2rem;border-top:1px solid rgba(255,255,255,0.04);}
+.inscription-title{font-family:'Cinzel',serif;font-size:1rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
+.inscription-text{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-style:italic;color:rgba(255,255,255,0.3);max-width:500px;margin:0 auto;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">LIBR<span>UM</span></a>
+  <div class="nav-spacer"></div>
+  <a href="catalog.html" class="nav-link">Catalogue</a>
+  <a href="dashboard.html" class="nav-link">Dashboard</a>
+  <a href="editor.html" class="nav-btn">Écrire</a>
+</nav>
+
+<div class="lor-hero">
+  <span class="lor-icon">🏆</span>
+  <h1 class="lor-title">Le Livre d'<span>Or</span></h1>
+  <p class="lor-subtitle">Les œuvres que la communauté a choisies d'imprimer. Pour toujours.</p>
+  <div class="lor-stats">
+    <div class="ls-item"><span class="ls-num">48</span><div class="ls-label">Œuvres imprimées</div></div>
+    <div class="ls-item"><span class="ls-num">12 394</span><div class="ls-label">Donateurs</div></div>
+    <div class="ls-item"><span class="ls-num">384 700 🪙</span><div class="ls-label">Collectés</div></div>
+  </div>
+</div>
+
+<div class="year-filter">
+  <button class="yf-btn active" onclick="filterYear(this,'2026')">2026</button>
+  <button class="yf-btn" onclick="filterYear(this,'2025')">2025</button>
+  <button class="yf-btn" onclick="filterYear(this,'all')">Tout</button>
+</div>
+
+<div class="lor-content">
+
+  <div class="category-section">
+    <div class="cat-header"><div class="cat-line"></div><div class="cat-title">Roman</div><div class="cat-line"></div></div>
+    <div class="winners-row" id="winners-roman"></div>
+  </div>
+
+  <div class="category-section">
+    <div class="cat-header"><div class="cat-line"></div><div class="cat-title">Nouvelle</div><div class="cat-line"></div></div>
+    <div class="winners-row" id="winners-nouvelle"></div>
+  </div>
+
+  <div class="category-section">
+    <div class="cat-header"><div class="cat-line"></div><div class="cat-title">Poésie</div><div class="cat-line"></div></div>
+    <div class="winners-row" id="winners-poesie"></div>
+  </div>
+
+  <div class="category-section">
+    <div class="cat-header"><div class="cat-line"></div><div class="cat-title">Scénario</div><div class="cat-line"></div></div>
+    <div class="winners-row" id="winners-scenario"></div>
+  </div>
+
+</div>
+
+<div class="inscription">
+  <div class="inscription-title">Gravé dans la pierre numérique</div>
+  <p class="inscription-text">Chaque œuvre ici présente a été choisie librement par la communauté. Aucun algorithme. Aucune commission. Juste des lecteurs qui ont dit : <em>ce texte mérite d'exister en papier.</em></p>
+</div>
+
+<script>
+const winners = {
+  roman:[
+    {id:'11',title:'Le Dernier Griot',      author:'ousmane_n', month:'Février 2026', cagnotte:15000, votes:234, rating:4.9, tier:1, tirage:300, quote:'Un roman qui traverse le temps et les frontières.',coverClass:'cover-roman'},
+    {id:'r2',title:'La Rivière et la Lune', author:'amara_s',   month:'Janvier 2026', cagnotte:15000, votes:187, rating:4.7, tier:1, tirage:300, quote:'Une voix nouvelle dans la littérature francophone.',coverClass:'cover-roman'},
+  ],
+  nouvelle:[
+    {id:'n1',title:'Miel et cendres',           author:'farida_z',  month:'Février 2026', cagnotte:25000, votes:156, rating:4.8, tier:2, tirage:500, quote:'La douleur et la beauté dans le même souffle.',coverClass:'cover-nouvelle'},
+  ],
+  poesie:[
+    {id:'p1',title:'Voix d\'os et de sel',        author:'nadia_m',   month:'Janvier 2026', cagnotte:35000, votes:612, rating:4.9, tier:3, tirage:1000, quote:'Chaque vers est une cicatrice lumineuse.',coverClass:'cover-poesie'},
+    {id:'p2',title:'Cartographie de l\'absence', author:'yasmine_b', month:'Février 2026', cagnotte:35000, votes:521, rating:4.6, tier:3, tirage:1000, quote:'La poésie comme seule géographie possible.',coverClass:'cover-poesie'},
+  ],
+  scenario:[
+    {id:'s1',title:'Le Protocole de l\'Aube',author:'carlos_v',month:'Janvier 2026',cagnotte:25000,votes:89,rating:4.5,tier:2,tirage:500,quote:'Un thriller d\'une précision chirurgicale.',coverClass:'cover-scenario'},
+  ],
+};
+
+function renderWinners(year='2026') {
+  Object.entries(winners).forEach(([type, works]) => {
+    const el = document.getElementById('winners-'+type);
+    if (!el) return;
+    el.innerHTML = works.map(w=>`
+      <div class="winner-card" onclick="window.location='work.html?id=${w.id}'">
+        <div class="wc-month-badge">${w.month}</div>
+        <div class="wc-cover ${w.coverClass}">
+          <div class="wc-cover-title">${w.title}</div>
+          <div class="trophy-icon">🏆</div>
+        </div>
+        <div class="wc-body">
+          <div class="wc-type">Gagnant — ${w.month}</div>
+          <div class="wc-title">${w.title}</div>
+          <div class="wc-author">par ${w.author}</div>
+          <div class="wc-quote">"${w.quote}"</div>
+          <div class="wc-stats">★ <span>${w.rating}</span> · <span>${w.votes}</span> votes</div>
+          <div class="wc-cagnotte">
+            <div><div class="wcc-label">Cagnotte atteinte</div><div class="wcc-amount">${w.cagnotte >= 10000 ? Math.floor(w.cagnotte/10000)+'🏅' + (w.cagnotte%10000 > 0 ? ' '+(w.cagnotte%10000).toLocaleString('fr')+'🪙':'') : w.cagnotte.toLocaleString('fr')+'🪙'}</div></div>
+            <div class="wcc-note">Imprimé ✓</div>
+          </div>
+          <div class="print-stamp">📖 Exemplaire imprimé</div>
+        </div>
+      </div>`).join('');
+  });
+}
+
+function filterYear(btn, year) {
+  document.querySelectorAll('.yf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWinners(year);
+}
+
+renderWinners();
+</script>
+</body>
+</html>

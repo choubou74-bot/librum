@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Catalogue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="currency.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0e0c09; --parchment:#f9f4ec; --gold:#b8972a; --gold-light:#d4b04a;
+  --mist:#e8e2d8; --text:#2a2520; --text-muted:#7a7068; --border:#ddd8cf;
+  --white:#ffffff;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--parchment); color:var(--text); }
+
+/* NAV */
+nav {
+  position:sticky; top:0; z-index:50;
+  background:rgba(249,244,236,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 3rem;
+  height:56px;
+  display:flex; align-items:center; gap:2rem;
+}
+
+.nav-logo { font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; color:var(--ink); text-decoration:none; letter-spacing:0.15em; }
+.nav-logo span { color:var(--gold); }
+.nav-spacer { flex:1; }
+.nav-link { font-size:0.78rem; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); text-decoration:none; transition:color 0.2s; }
+.nav-link:hover, .nav-link.active { color:var(--gold); }
+.nav-btn { padding:0.45rem 1.2rem; background:var(--ink); color:var(--parchment); font-size:0.78rem; font-weight:600; letter-spacing:0.1em; text-decoration:none; transition:background 0.2s; }
+.nav-btn:hover { background:var(--gold); color:var(--ink); }
+
+/* HERO STRIP */
+.catalog-hero {
+  background:var(--ink);
+  padding:3rem;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:2rem;
+}
+
+.catalog-hero h1 { font-family:'Cinzel',serif; font-size:1.8rem; font-weight:700; color:var(--parchment); }
+.catalog-hero p { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-style:italic; color:rgba(249,244,236,0.5); margin-top:0.3rem; }
+
+.hero-stats { display:flex; gap:2rem; flex-shrink:0; }
+.hero-stat { text-align:center; }
+.hero-stat-num { font-family:'Cinzel',serif; font-size:1.6rem; font-weight:700; color:var(--gold); display:block; }
+.hero-stat-label { font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(249,244,236,0.3); }
+
+/* MAIN LAYOUT */
+.catalog-layout { display:grid; grid-template-columns:280px 1fr; gap:0; min-height:calc(100vh - 56px); }
+
+/* FILTERS SIDEBAR */
+.filters {
+  background:var(--white);
+  border-right:1px solid var(--border);
+  padding:1.5rem;
+  position:sticky;
+  top:56px;
+  height:calc(100vh - 56px);
+  overflow-y:auto;
+}
+
+.filter-section { margin-bottom:1.5rem; }
+.filter-title { font-size:0.68rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.8rem; }
+
+.search-input {
+  width:100%;
+  padding:0.6rem 0.8rem;
+  border:1.5px solid var(--border);
+  font-size:0.88rem;
+  color:var(--text);
+  background:var(--parchment);
+  outline:none;
+  transition:border-color 0.2s;
+}
+
+.search-input:focus { border-color:var(--gold); }
+
+.type-chips { display:flex; flex-direction:column; gap:0.3rem; }
+
+.type-chip {
+  padding:0.5rem 0.8rem;
+  border:1.5px solid var(--border);
+  background:none;
+  cursor:pointer;
+  font-size:0.82rem;
+  color:var(--text-muted);
+  text-align:left;
+  transition:all 0.2s;
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+.type-chip:hover { border-color:var(--gold); color:var(--gold); }
+.type-chip.active { border-color:var(--gold); background:rgba(184,151,42,0.08); color:var(--ink); font-weight:500; }
+
+.type-chip-count { font-size:0.7rem; color:var(--text-muted); background:var(--mist); padding:0.1rem 0.4rem; border-radius:10px; }
+
+.sort-select {
+  width:100%;
+  padding:0.55rem 0.7rem;
+  border:1.5px solid var(--border);
+  background:white;
+  font-size:0.85rem;
+  color:var(--text);
+  outline:none;
+  cursor:pointer;
+  transition:border-color 0.2s;
+}
+
+.sort-select:focus { border-color:var(--gold); }
+
+.filter-divider { height:1px; background:var(--border); margin:1rem 0; }
+
+/* NEAR PRINT */
+.near-print-item {
+  padding:0.7rem;
+  border:1px solid var(--border);
+  margin-bottom:0.5rem;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.near-print-item:hover { border-color:var(--gold); }
+.near-print-title { font-size:0.82rem; font-weight:500; color:var(--ink); margin-bottom:0.3rem; }
+.near-print-author { font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem; }
+.print-progress { height:3px; background:var(--mist); border-radius:2px; overflow:hidden; }
+.print-progress-bar { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:2px; transition:width 1s ease; }
+.print-pct { font-size:0.68rem; color:var(--gold); margin-top:0.2rem; }
+
+/* CATALOG CONTENT */
+.catalog-content { padding:2rem; }
+
+.catalog-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:1.5rem;
+}
+
+.catalog-topbar h2 { font-family:'Cinzel',serif; font-size:1rem; font-weight:600; color:var(--ink); }
+.catalog-count { font-size:0.8rem; color:var(--text-muted); }
+
+.view-btns { display:flex; gap:0.3rem; }
+.view-btn {
+  width:28px; height:28px; border:1px solid var(--border); background:none;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:0.8rem; color:var(--text-muted); transition:all 0.2s;
+}
+.view-btn.active { border-color:var(--gold); color:var(--gold); background:rgba(184,151,42,0.08); }
+
+/* WORKS GRID */
+.works-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1.5rem; }
+
+.work-card {
+  background:white;
+  border:1px solid var(--border);
+  transition:all 0.25s;
+  cursor:pointer;
+  position:relative;
+}
+
+.work-card:hover {
+  transform:translateY(-4px);
+  box-shadow:0 12px 32px rgba(0,0,0,0.1);
+  border-color:var(--gold);
+}
+
+.work-cover {
+  width:100%;
+  aspect-ratio:2/3;
+  object-fit:cover;
+  display:block;
+  position:relative;
+}
+
+.work-cover-placeholder {
+  width:100%;
+  aspect-ratio:2/3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:0.5rem;
+  font-family:'Cinzel',serif;
+}
+
+.cover-type-label {
+  font-size:0.58rem;
+  font-weight:600;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  opacity:0.6;
+  position:absolute;
+  bottom:0.6rem;
+  left:0;
+  right:0;
+  text-align:center;
+}
+
+.work-body { padding:0.8rem; }
+.work-type-badge {
+  font-size:0.6rem;
+  font-weight:600;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:0.3rem;
+}
+
+.work-title {
+  font-family:'Cinzel',serif;
+  font-size:0.82rem;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:0.2rem;
+  line-height:1.3;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.work-author { font-size:0.75rem; color:var(--text-muted); margin-bottom:0.6rem; }
+
+.work-meta {
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:0.72rem;
+}
+
+.work-rating { color:var(--gold); font-weight:600; display:flex; align-items:center; gap:0.2rem; }
+.work-votes { color:var(--text-muted); }
+
+/* Cagnotte bar on card */
+.work-cagnotte {
+  margin-top:0.5rem;
+  border-top:1px solid var(--border);
+  padding-top:0.5rem;
+}
+
+.cagnotte-mini-bar { height:3px; background:var(--mist); border-radius:2px; overflow:hidden; }
+.cagnotte-mini-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); transition:width 1.5s ease; }
+.cagnotte-mini-text { font-size:0.65rem; color:var(--text-muted); margin-top:0.25rem; display:flex; justify-content:space-between; }
+.cagnotte-mini-text span { color:var(--gold); font-weight:600; }
+
+/* PRINTED BADGE */
+.printed-badge {
+  position:absolute;
+  top:0.5rem; right:0.5rem;
+  background:var(--gold);
+  color:var(--ink);
+  font-size:0.55rem;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  padding:0.2rem 0.4rem;
+  border-radius:2px;
+}
+
+/* LIST VIEW */
+.works-list { display:none; flex-direction:column; gap:0.8rem; }
+.works-list.active { display:flex; }
+.works-grid.list-view { display:none; }
+
+.work-row {
+  background:white;
+  border:1px solid var(--border);
+  padding:1rem;
+  display:grid;
+  grid-template-columns:60px 1fr auto;
+  gap:1rem;
+  align-items:center;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+
+.work-row:hover { border-color:var(--gold); background:rgba(184,151,42,0.02); }
+.work-row-thumb { width:60px; aspect-ratio:2/3; object-fit:cover; }
+.work-row-info h3 { font-family:'Cinzel',serif; font-size:0.9rem; color:var(--ink); margin-bottom:0.2rem; }
+.work-row-info p { font-size:0.8rem; color:var(--text-muted); }
+
+/* PAGINATION */
+.pagination {
+  display:flex; align-items:center; justify-content:center;
+  gap:0.5rem; margin-top:3rem;
+}
+
+.page-btn {
+  width:36px; height:36px;
+  border:1px solid var(--border);
+  background:white;
+  cursor:pointer;
+  font-size:0.85rem;
+  color:var(--text-muted);
+  transition:all 0.2s;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.page-btn:hover { border-color:var(--gold); color:var(--gold); }
+.page-btn.active { background:var(--ink); color:var(--parchment); border-color:var(--ink); }
+
+/* LOADING */
+.loading-skeleton { animation:shimmer 1.5s ease infinite; }
+@keyframes shimmer {
+  0%,100% { opacity:0.4; }
+  50% { opacity:0.8; }
+}
+
+.skeleton-card { background:white; border:1px solid var(--border); }
+.skel-cover { width:100%; aspect-ratio:2/3; background:var(--mist); }
+.skel-body { padding:0.8rem; }
+.skel-line { height:10px; background:var(--mist); border-radius:2px; margin-bottom:0.4rem; }
+
+/* Cover colors by type */
+.cover-roman { background:linear-gradient(135deg,#1a2744,#0e1830); color:#8a9ab5; }
+.cover-nouvelle { background:linear-gradient(135deg,#2a1a1a,#1a0e0e); color:#8a7070; }
+.cover-poesie { background:linear-gradient(135deg,#1a1a2a,#0e0e1a); color:#7a7a8a; }
+.cover-essai { background:linear-gradient(135deg,#1a2420,#0e1610); color:#7a8a80; }
+.cover-scenario { background:linear-gradient(135deg,#1a1010,#100808); color:#8a7070; }
+.cover-bd { background:linear-gradient(135deg,#201a00,#100d00); color:#8a7a50; }
+.cover-jeunesse { background:linear-gradient(135deg,#0d1a20,#081015); color:#608090; }
+.cover-default { background:linear-gradient(135deg,var(--gold),#8a6a18); color:rgba(255,255,255,0.8); }
+
+@media(max-width:900px) {
+  .catalog-layout { grid-template-columns:1fr; }
+  .filters { position:static; height:auto; }
+  .catalog-hero { flex-direction:column; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">LIBR<span>UM</span></a>
+  <div class="nav-spacer"></div>
+  <a href="catalog.html" class="nav-link active">Catalogue</a>
+  <a href="#" class="nav-link">Classement</a>
+  <a href="#" class="nav-link">Livre d'Or</a>
+  <a href="editor.html" class="nav-btn">Écrire</a>
+</nav>
+
+<div class="catalog-hero">
+  <div>
+    <h1>Catalogue LIBRUM</h1>
+    <p>Des voix du monde entier, libres et sans intermédiaire.</p>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="hero-stat-num" id="total-works">—</span><div class="hero-stat-label">Œuvres</div></div>
+    <div class="hero-stat"><span class="hero-stat-num" id="total-authors">—</span><div class="hero-stat-label">Auteurs</div></div>
+    <div class="hero-stat"><span class="hero-stat-num" id="total-printed">—</span><div class="hero-stat-label">Imprimés</div></div>
+  </div>
+</div>
+
+<div class="catalog-layout">
+
+  <!-- FILTERS -->
+  <aside class="filters">
+    <div class="filter-section">
+      <div class="filter-title">Rechercher</div>
+      <input class="search-input" id="search-input" placeholder="Titre, auteur, tag…" oninput="scheduleSearch()">
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Type d'œuvre</div>
+      <div class="type-chips" id="type-chips">
+        <button class="type-chip active" data-type="" onclick="filterType(this,'')">Tout <span class="type-chip-count" id="count-all">—</span></button>
+        <button class="type-chip" data-type="roman" onclick="filterType(this,'roman')">Roman <span class="type-chip-count" id="count-roman">—</span></button>
+        <button class="type-chip" data-type="nouvelle" onclick="filterType(this,'nouvelle')">Nouvelle <span class="type-chip-count" id="count-nouvelle">—</span></button>
+        <button class="type-chip" data-type="poesie" onclick="filterType(this,'poesie')">Poésie <span class="type-chip-count" id="count-poesie">—</span></button>
+        <button class="type-chip" data-type="essai" onclick="filterType(this,'essai')">Essai <span class="type-chip-count" id="count-essai">—</span></button>
+        <button class="type-chip" data-type="scenario_film" onclick="filterType(this,'scenario_film')">Scénario Film <span class="type-chip-count">—</span></button>
+        <button class="type-chip" data-type="scenario_serie" onclick="filterType(this,'scenario_serie')">Scénario Série <span class="type-chip-count">—</span></button>
+        <button class="type-chip" data-type="bd" onclick="filterType(this,'bd')">Bande Dessinée <span class="type-chip-count">—</span></button>
+        <button class="type-chip" data-type="jeunesse" onclick="filterType(this,'jeunesse')">Jeunesse <span class="type-chip-count">—</span></button>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Trier par</div>
+      <select class="sort-select" id="sort-select" onchange="applySort()">
+        <option value="recent">Plus récents</option>
+        <option value="top_rated">Mieux notés</option>
+        <option value="most_voted">Plus votés</option>
+        <option value="cagnotte">Cagnotte</option>
+        <option value="most_read">Plus lus</option>
+      </select>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <div class="filter-title">🔥 Proches de l'impression</div>
+      <div id="near-print-list">
+        <div class="near-print-item loading-skeleton">
+          <div class="near-print-title" style="background:var(--mist);height:12px;width:70%;border-radius:2px;"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CATALOG CONTENT -->
+  <main class="catalog-content">
+    <div class="catalog-topbar">
+      <div>
+        <h2 id="catalog-title">Toutes les œuvres</h2>
+        <div class="catalog-count" id="catalog-count">Chargement…</div>
+      </div>
+      <div class="view-btns">
+        <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Grille">⊞</button>
+        <button class="view-btn" id="btn-list" onclick="setView('list')" title="Liste">☰</button>
+      </div>
+    </div>
+
+    <div class="works-grid" id="works-grid"></div>
+    <div class="works-list" id="works-list"></div>
+
+    <div class="pagination" id="pagination"></div>
+  </main>
+
+</div>
+
+<script>
+const API = 'http://localhost:3001/api';
+let currentType = '';
+let currentSort = 'recent';
+let currentSearch = '';
+let currentPage = 1;
+let searchTimer = null;
+let viewMode = 'grid';
+
+const TYPE_LABELS = {
+  roman:'Roman', nouvelle:'Nouvelle', poesie:'Poésie', essai:'Essai',
+  scenario_film:'Scénario Film', scenario_serie:'Scénario Série',
+  scenario_court:'Court Métrage', bd:'Bande Dessinée', jeunesse:'Jeunesse',
+  biographie:'Biographie', documentaire:'Documentaire'
+};
+
+const COVER_COLORS = {
+  roman:'cover-roman', nouvelle:'cover-nouvelle', poesie:'cover-poesie',
+  essai:'cover-essai', scenario_film:'cover-scenario', scenario_serie:'cover-scenario',
+  bd:'cover-bd', jeunesse:'cover-jeunesse'
+};
+
+// ===== INIT =====
+async function init() {
+  await Promise.all([loadCatalog(), loadNearPrint(), loadStats()]);
+}
+
+// ===== LOAD CATALOG =====
+async function loadCatalog() {
+  showSkeletons();
+
+  const params = new URLSearchParams({
+    page: currentPage,
+    limit: 24,
+    sort: currentSort,
+    ...(currentType && { type: currentType }),
+    ...(currentSearch && { search: currentSearch })
+  });
+
+  try {
+    const res = await fetch(`${API}/catalog?${params}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    renderWorks(data.works);
+    renderPagination(data.page, data.pages, data.total);
+    document.getElementById('catalog-count').textContent =
+      `${data.total.toLocaleString('fr')} œuvre${data.total!==1?'s':''}`;
+  } catch(e) {
+    renderMockWorks();
+  }
+}
+
+// ===== MOCK DATA (si API non dispo) =====
+function renderMockWorks() {
+  const mocks = [
+    // cagnotte_pepites = pépites collectées | seuil calculé via LC.getTier(vote_count).seuil_pepites
+    { id:'1',  title:'Les Enfants du Sahel',            type:'roman',         author_pseudo:'amadou_k',   avg_rating:4.7, vote_count:89,  cagnotte_pepites:9200,  is_printed:false, language:'fr' },
+    { id:'2',  title:'Voix d\'os et de sel',            type:'poesie',        author_pseudo:'nadia_m',    avg_rating:4.9, vote_count:612, cagnotte_pepites:36800, is_printed:true,  language:'fr' },
+    { id:'3',  title:'Le Protocole Zéro',               type:'scenario_film', author_pseudo:'carlos_v',   avg_rating:4.3, vote_count:54,  cagnotte_pepites:3400,  is_printed:false, language:'fr' },
+    { id:'4',  title:'Critique de la raison numérique', type:'essai',         author_pseudo:'ibrahima_d', avg_rating:4.8, vote_count:203, cagnotte_pepites:22500, is_printed:false, language:'fr' },
+    { id:'5',  title:'La Cartographie des absents',     type:'nouvelle',      author_pseudo:'yasmine_b',  avg_rating:4.5, vote_count:67,  cagnotte_pepites:7100,  is_printed:false, language:'fr' },
+    { id:'6',  title:'Monsoon Dreams',                  type:'roman',         author_pseudo:'priya_s',    avg_rating:4.6, vote_count:91,  cagnotte_pepites:10800, is_printed:false, language:'en' },
+    { id:'7',  title:'Dernier métro pour nulle part',   type:'scenario_serie',author_pseudo:'marco_t',    avg_rating:4.2, vote_count:44,  cagnotte_pepites:2900,  is_printed:false, language:'fr' },
+    { id:'8',  title:'Miel et cendres',                 type:'nouvelle',      author_pseudo:'farida_z',   avg_rating:4.8, vote_count:156, cagnotte_pepites:14200, is_printed:false, language:'fr' },
+    { id:'9',  title:'Atlas des oubliés',               type:'roman',         author_pseudo:'jean_p',     avg_rating:4.4, vote_count:78,  cagnotte_pepites:8400,  is_printed:false, language:'fr' },
+    { id:'10', title:'Algorithme',                      type:'bd',            author_pseudo:'lena_k',     avg_rating:4.7, vote_count:112, cagnotte_pepites:11900, is_printed:false, language:'fr' },
+    { id:'11', title:'Le Dernier Griot',                type:'roman',         author_pseudo:'ousmane_n',  avg_rating:4.9, vote_count:234, cagnotte_pepites:11340, is_printed:false, language:'fr' },
+    { id:'12', title:'Mémoires de silice',              type:'essai',         author_pseudo:'chen_w',     avg_rating:4.3, vote_count:61,  cagnotte_pepites:5200,  is_printed:false, language:'fr' },
+  ];
+
+  renderWorks(mocks);
+  document.getElementById('catalog-count').textContent = `${mocks.length} œuvres (démo)`;
+  renderPagination(1, 3, mocks.length);
+
+  document.getElementById('total-works').textContent = '2 847';
+  document.getElementById('total-authors').textContent = '12 394';
+  document.getElementById('total-printed').textContent = '48';
+}
+
+// ===== RENDER WORKS =====
+function renderWorks(works) {
+  const grid = document.getElementById('works-grid');
+  const list = document.getElementById('works-list');
+
+  if (!works.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--text-muted);">
+      <div style="font-size:2rem;margin-bottom:1rem;">📚</div>
+      <div style="font-family:'Cinzel',serif;font-size:1rem;margin-bottom:0.5rem;">Aucune œuvre trouvée</div>
+      <div style="font-size:0.85rem;">Modifiez vos filtres ou soyez le premier à publier dans cette catégorie.</div>
+    </div>`;
+    list.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = works.map(w => workCard(w)).join('');
+  list.innerHTML = works.map(w => workRow(w)).join('');
+
+  // Animate cagnotte bars
+  setTimeout(() => {
+    document.querySelectorAll('.cagnotte-mini-fill, .print-progress-bar').forEach(bar => {
+      bar.style.width = bar.dataset.pct + '%';
+    });
+  }, 100);
+}
+
+function workCard(w) {
+  const colorClass = COVER_COLORS[w.type] || 'cover-default';
+  const pep    = w.cagnotte_pepites || 0;
+  const tier   = LC.getTier(w.vote_count || 0);
+  const seuil  = tier.seuil_pepites;
+  const pct    = LC.progressPct(pep, seuil);
+  const pepFmt = pep >= 10000 ? LC.format(pep, 'compact') : pep.toLocaleString('fr') + ' 🪙';
+
+  return `
+    <div class="work-card" onclick="openWork('${w.id}')">
+      ${w.is_printed ? '<div class="printed-badge">✓ Édité</div>' : ''}
+      <div class="work-cover-placeholder ${colorClass}">
+        <div style="font-family:'Cinzel',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-align:center;padding:1rem;opacity:0.7;line-height:1.4;">${w.title}</div>
+        <div class="cover-type-label">${TYPE_LABELS[w.type]||w.type}</div>
+      </div>
+      <div class="work-body">
+        <div class="work-type-badge">${TYPE_LABELS[w.type]||w.type}</div>
+        <div class="work-title">${w.title}</div>
+        <div class="work-author">par ${w.author_pseudo}</div>
+        <div class="work-meta">
+          <div class="work-rating"><span>★</span>${w.avg_rating ? parseFloat(w.avg_rating).toFixed(1) : '—'}</div>
+          <div class="work-votes">${w.vote_count||0} vote${w.vote_count!==1?'s':''}</div>
+        </div>
+        ${pep > 0 ? `
+        <div class="work-cagnotte">
+          <div class="cagnotte-mini-bar"><div class="cagnotte-mini-fill" data-pct="${pct}" style="width:0%"></div></div>
+          <div class="cagnotte-mini-text">
+            <span>${pepFmt}</span>
+            <span style="font-size:0.65rem;opacity:0.7;">${tier.icon} Niv.${tier.level} · ${pct}%</span>
+          </div>
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function workRow(w) {
+  const colorClass = COVER_COLORS[w.type] || 'cover-default';
+  return `
+    <div class="work-row" onclick="openWork('${w.id}')">
+      <div class="work-cover-placeholder ${colorClass}" style="width:60px;aspect-ratio:2/3;"></div>
+      <div class="work-row-info">
+        <h3>${w.title}</h3>
+        <p>par ${w.author_pseudo} · ${TYPE_LABELS[w.type]||w.type}</p>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:var(--gold);font-weight:600;font-size:0.85rem;">★ ${w.avg_rating?parseFloat(w.avg_rating).toFixed(1):'—'}</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">${w.vote_count||0} votes</div>
+      </div>
+    </div>
+  `;
+}
+
+// ===== NEAR PRINT =====
+async function loadNearPrint() {
+  try {
+    const res = await fetch(`${API}/catalog/featured`);
+    const data = await res.json();
+    renderNearPrint(data.nearPrint || []);
+  } catch(e) {
+    renderNearPrint([
+      { id:'11', title:'Le Dernier Griot',                author_pseudo:'ousmane_n',  vote_count:234, cagnotte_pepites:11340 },
+      { id:'4',  title:'Critique de la raison numérique', author_pseudo:'ibrahima_d', vote_count:203, cagnotte_pepites:22500 },
+    ]);
+  }
+}
+
+function renderNearPrint(items) {
+  const el = document.getElementById('near-print-list');
+  if (!items.length) { el.innerHTML = '<div style="font-size:0.78rem;color:var(--text-muted);">Aucune œuvre en attente.</div>'; return; }
+  el.innerHTML = items.map(w => {
+    const tier  = LC.getTier(w.vote_count || 0);
+    const seuil = tier.seuil_pepites;
+    const pep   = w.cagnotte_pepites || 0;
+    const pct   = LC.progressPct(pep, seuil);
+    const pepFmt = LC.format(pep, 'compact');
+    const seuFmt = LC.format(seuil, 'compact');
+    return `
+      <div class="near-print-item" onclick="openWork('${w.id}')">
+        <div class="near-print-title">${w.title}</div>
+        <div class="near-print-author">par ${w.author_pseudo} · ${tier.icon} Niv.${tier.level} · ${tier.tirage.toLocaleString('fr')} ex.</div>
+        <div class="print-progress"><div class="print-progress-bar" data-pct="${pct}" style="width:0%"></div></div>
+        <div class="print-pct">${pct}% — ${pepFmt} / ${seuFmt}</div>
+      </div>
+    `;
+  }).join('');
+  setTimeout(() => document.querySelectorAll('.print-progress-bar').forEach(b => b.style.width = b.dataset.pct + '%'), 200);
+}
+
+// ===== STATS =====
+async function loadStats() {
+  // Les données mock sont dans renderMockWorks, ici on charge depuis l'API si dispo
+}
+
+// ===== SKELETONS =====
+function showSkeletons() {
+  const grid = document.getElementById('works-grid');
+  grid.innerHTML = Array.from({length:12}).map(() => `
+    <div class="skeleton-card loading-skeleton">
+      <div class="skel-cover"></div>
+      <div class="skel-body">
+        <div class="skel-line" style="width:40%"></div>
+        <div class="skel-line" style="width:80%"></div>
+        <div class="skel-line" style="width:60%"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== PAGINATION =====
+function renderPagination(current, total, count) {
+  const el = document.getElementById('pagination');
+  if (total <= 1) { el.innerHTML = ''; return; }
+
+  let html = '';
+  if (current > 1) html += `<button class="page-btn" onclick="goPage(${current-1})">←</button>`;
+
+  for (let i=1; i<=Math.min(total,7); i++) {
+    if (i===4 && total > 7) { html += `<span style="padding:0 0.3rem;color:var(--text-muted);">…</span>`; i=total-2; }
+    html += `<button class="page-btn ${i===current?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+
+  if (current < total) html += `<button class="page-btn" onclick="goPage(${current+1})">→</button>`;
+  el.innerHTML = html;
+}
+
+function goPage(p) { currentPage = p; loadCatalog(); window.scrollTo(0,0); }
+
+// ===== FILTERS =====
+function filterType(el, type) {
+  document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentType = type;
+  currentPage = 1;
+  const label = type ? TYPE_LABELS[type] : 'Toutes les œuvres';
+  document.getElementById('catalog-title').textContent = label;
+  loadCatalog();
+}
+
+function applySort() {
+  currentSort = document.getElementById('sort-select').value;
+  currentPage = 1;
+  loadCatalog();
+}
+
+function scheduleSearch() {
+  clearTimeout(searchTimer);
+  currentSearch = document.getElementById('search-input').value.trim();
+  searchTimer = setTimeout(() => { currentPage = 1; loadCatalog(); }, 400);
+}
+
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('works-grid').style.display = mode==='grid' ? 'grid' : 'none';
+  document.getElementById('works-list').classList.toggle('active', mode==='list');
+  document.getElementById('btn-grid').classList.toggle('active', mode==='grid');
+  document.getElementById('btn-list').classList.toggle('active', mode==='list');
+}
+
+function openWork(id) {
+  window.location.href = `work.html?id=${id}`;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

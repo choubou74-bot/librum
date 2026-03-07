@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Rejoindre la communauté</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0e0c09;
+  --parchment: #f9f4ec;
+  --gold: #b8972a;
+  --gold-light: #d4b04a;
+  --crimson: #7a1e1e;
+  --mist: #e8e2d8;
+  --text: #2a2520;
+  --text-muted: #7a7068;
+  --error: #c0392b;
+  --success: #1a6b3a;
+  --border: #ddd8cf;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Inter',sans-serif;
+  background:var(--ink);
+  color:var(--text);
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+/* ===== LEFT PANEL ===== */
+.left-panel {
+  background: linear-gradient(160deg, #0e0c09 0%, #1a1510 50%, #0a0804 100%);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:4rem;
+  position:relative;
+  overflow:hidden;
+}
+
+.left-panel::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 30% 40%, rgba(184,151,42,0.12) 0%, transparent 60%);
+  pointer-events:none;
+}
+
+.big-letter {
+  position:absolute;
+  font-family:'Cinzel',serif;
+  font-size:40vw;
+  font-weight:700;
+  color:rgba(255,255,255,0.018);
+  right:-10%;
+  top:50%;
+  transform:translateY(-50%);
+  pointer-events:none;
+  line-height:1;
+}
+
+.panel-logo {
+  font-family:'Cinzel',serif;
+  font-size:2rem;
+  font-weight:700;
+  color:var(--parchment);
+  letter-spacing:0.2em;
+  text-decoration:none;
+  position:relative;
+  z-index:1;
+}
+.panel-logo span { color:var(--gold); }
+
+.panel-quote {
+  position:relative;
+  z-index:1;
+}
+
+.quote-text {
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.2rem;
+  font-weight:300;
+  font-style:italic;
+  color:var(--parchment);
+  line-height:1.4;
+  margin-bottom:1.5rem;
+}
+
+.quote-source {
+  font-size:0.8rem;
+  font-weight:400;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+
+.panel-features {
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+}
+
+.pf-item {
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  font-size:0.88rem;
+  color:rgba(249,244,236,0.55);
+}
+
+.pf-dot {
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--gold);
+  flex-shrink:0;
+}
+
+/* ===== RIGHT PANEL ===== */
+.right-panel {
+  background:var(--parchment);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:4rem;
+  overflow-y:auto;
+}
+
+.auth-box {
+  max-width:420px;
+  margin:0 auto;
+  width:100%;
+}
+
+.auth-tabs {
+  display:flex;
+  border-bottom:2px solid var(--border);
+  margin-bottom:2.5rem;
+}
+
+.auth-tab {
+  flex:1;
+  padding:0.8rem;
+  text-align:center;
+  font-family:'Cinzel',serif;
+  font-size:0.82rem;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  cursor:pointer;
+  border:none;
+  background:none;
+  border-bottom:2px solid transparent;
+  margin-bottom:-2px;
+  transition:all 0.2s;
+}
+
+.auth-tab.active {
+  color:var(--ink);
+  border-bottom-color:var(--gold);
+}
+
+.auth-title {
+  font-family:'Cinzel',serif;
+  font-size:1.6rem;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:0.5rem;
+}
+
+.auth-subtitle {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;
+  font-style:italic;
+  color:var(--text-muted);
+  margin-bottom:2rem;
+}
+
+/* Steps indicator */
+.steps-indicator {
+  display:flex;
+  align-items:center;
+  gap:0;
+  margin-bottom:2rem;
+}
+
+.step-dot {
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:2px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:0.72rem;
+  font-weight:600;
+  color:var(--text-muted);
+  transition:all 0.3s;
+  position:relative;
+  z-index:1;
+  background:var(--parchment);
+}
+
+.step-dot.active {
+  border-color:var(--gold);
+  background:var(--gold);
+  color:white;
+}
+
+.step-dot.done {
+  border-color:var(--success);
+  background:var(--success);
+  color:white;
+}
+
+.step-line {
+  flex:1;
+  height:2px;
+  background:var(--border);
+  transition:background 0.3s;
+}
+
+.step-line.done { background:var(--success); }
+
+/* Form */
+.form-group {
+  margin-bottom:1.2rem;
+}
+
+.form-label {
+  display:block;
+  font-size:0.75rem;
+  font-weight:600;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  margin-bottom:0.5rem;
+}
+
+.form-input {
+  width:100%;
+  padding:0.85rem 1rem;
+  background:white;
+  border:1.5px solid var(--border);
+  border-radius:2px;
+  font-family:'Inter',sans-serif;
+  font-size:0.95rem;
+  color:var(--text);
+  transition:border-color 0.2s, box-shadow 0.2s;
+  outline:none;
+}
+
+.form-input:focus {
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(184,151,42,0.1);
+}
+
+.form-input.error { border-color:var(--error); }
+.form-input.success { border-color:var(--success); }
+
+.form-error {
+  font-size:0.78rem;
+  color:var(--error);
+  margin-top:0.3rem;
+  display:none;
+}
+
+.form-error.show { display:block; }
+
+.form-hint {
+  font-size:0.78rem;
+  color:var(--text-muted);
+  margin-top:0.3rem;
+}
+
+/* Password strength */
+.pw-strength {
+  margin-top:0.5rem;
+  display:none;
+}
+
+.pw-strength.show { display:block; }
+
+.pw-bars {
+  display:flex;
+  gap:4px;
+  margin-bottom:0.3rem;
+}
+
+.pw-bar {
+  height:3px;
+  flex:1;
+  background:var(--border);
+  border-radius:2px;
+  transition:background 0.3s;
+}
+
+.pw-bar.weak { background:var(--error); }
+.pw-bar.medium { background:var(--gold); }
+.pw-bar.strong { background:var(--success); }
+
+.pw-label {
+  font-size:0.72rem;
+  color:var(--text-muted);
+}
+
+/* Phone input */
+.phone-group {
+  display:flex;
+  gap:0.5rem;
+}
+
+.phone-prefix {
+  padding:0.85rem 1rem;
+  background:white;
+  border:1.5px solid var(--border);
+  border-radius:2px;
+  font-size:0.95rem;
+  color:var(--text);
+  outline:none;
+  width:90px;
+}
+
+/* Code input */
+.code-inputs {
+  display:flex;
+  gap:0.6rem;
+  margin-bottom:1rem;
+}
+
+.code-input {
+  width:48px;
+  height:56px;
+  border:1.5px solid var(--border);
+  border-radius:2px;
+  background:white;
+  font-family:'Cinzel',serif;
+  font-size:1.4rem;
+  text-align:center;
+  color:var(--ink);
+  outline:none;
+  transition:all 0.2s;
+}
+
+.code-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(184,151,42,0.1); }
+.code-input.filled { border-color:var(--gold); background:rgba(184,151,42,0.05); }
+
+/* Submit btn */
+.btn-submit {
+  width:100%;
+  padding:1rem;
+  background:var(--ink);
+  color:var(--parchment);
+  font-family:'Cinzel',serif;
+  font-size:0.88rem;
+  font-weight:600;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  border:none;
+  cursor:pointer;
+  transition:all 0.3s;
+  margin-top:0.5rem;
+  position:relative;
+  overflow:hidden;
+}
+
+.btn-submit:hover { background:var(--gold); color:var(--ink); }
+.btn-submit:disabled { opacity:0.5; cursor:not-allowed; }
+
+.btn-submit .loading {
+  display:none;
+  position:absolute;
+  inset:0;
+  background:inherit;
+  align-items:center;
+  justify-content:center;
+}
+
+.btn-submit.loading-state .loading { display:flex; }
+
+/* Spinner */
+.spinner {
+  width:20px;
+  height:20px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Checkbox */
+.checkbox-group {
+  display:flex;
+  align-items:flex-start;
+  gap:0.8rem;
+  margin-bottom:1.2rem;
+}
+
+.form-checkbox {
+  width:18px;
+  height:18px;
+  accent-color:var(--gold);
+  flex-shrink:0;
+  margin-top:2px;
+}
+
+.checkbox-label {
+  font-size:0.82rem;
+  line-height:1.6;
+  color:var(--text-muted);
+}
+
+.checkbox-label a { color:var(--gold); text-decoration:none; }
+
+/* Divider */
+.auth-divider {
+  text-align:center;
+  font-size:0.78rem;
+  color:var(--text-muted);
+  margin:1.5rem 0;
+  position:relative;
+}
+
+.auth-divider::before, .auth-divider::after {
+  content:'';
+  position:absolute;
+  top:50%;
+  width:40%;
+  height:1px;
+  background:var(--border);
+}
+
+.auth-divider::before { left:0; }
+.auth-divider::after { right:0; }
+
+/* Success state */
+.success-box {
+  text-align:center;
+  padding:2rem 0;
+  display:none;
+}
+
+.success-box.show { display:block; }
+
+.success-icon {
+  width:64px;
+  height:64px;
+  background:rgba(26,107,58,0.1);
+  border:2px solid var(--success);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 1.5rem;
+  animation:scaleIn 0.4s ease;
+}
+
+@keyframes scaleIn {
+  from { transform:scale(0); opacity:0; }
+  to { transform:scale(1); opacity:1; }
+}
+
+.success-icon svg { width:28px; height:28px; stroke:var(--success); fill:none; stroke-width:2.5; }
+
+/* Form sections */
+.form-section { display:none; }
+.form-section.active { display:block; animation:fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity:0; transform:translateX(10px); }
+  to { opacity:1; transform:translateX(0); }
+}
+
+/* Resend */
+.resend-link {
+  font-size:0.82rem;
+  color:var(--gold);
+  cursor:pointer;
+  text-decoration:underline;
+}
+
+/* Login form */
+.forgot-link {
+  font-size:0.8rem;
+  color:var(--gold);
+  text-decoration:none;
+  float:right;
+  margin-bottom:0.3rem;
+}
+
+@media (max-width:900px) {
+  body { grid-template-columns:1fr; }
+  .left-panel { display:none; }
+  .right-panel { padding:2.5rem; min-height:100vh; }
+}
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="big-letter">L</div>
+  <a href="index.html" class="panel-logo">LIBR<span>UM</span></a>
+
+  <div class="panel-quote">
+    <p class="quote-text">«&nbsp;Un livre est un rêve que vous tenez dans vos mains.&nbsp;»</p>
+    <div class="quote-source">— Neil Gaiman</div>
+  </div>
+
+  <div class="panel-features">
+    <div class="pf-item"><div class="pf-dot"></div>Publication gratuite, pour toujours</div>
+    <div class="pf-item"><div class="pf-dot"></div>IA co-auteur embarquée</div>
+    <div class="pf-item"><div class="pf-dot"></div>Cagnotte communautaire → impression réelle</div>
+    <div class="pf-item"><div class="pf-dot"></div>Vos droits. Votre œuvre. Toujours.</div>
+    <div class="pf-item"><div class="pf-dot"></div>Modération bénévole, transparente, contestable</div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="auth-box">
+
+    <!-- TABS -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('register')">Créer un compte</button>
+      <button class="auth-tab" onclick="switchTab('login')">Se connecter</button>
+    </div>
+
+    <!-- ===== REGISTER ===== -->
+    <div id="tab-register">
+
+      <!-- Steps -->
+      <div class="steps-indicator" id="steps-indicator">
+        <div class="step-dot active" id="step-1">1</div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-dot" id="step-2">2</div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step-dot" id="step-3">3</div>
+        <div class="step-line" id="line-3"></div>
+        <div class="step-dot" id="step-4">✓</div>
+      </div>
+
+      <!-- STEP 1 : Identité -->
+      <div class="form-section active" id="section-1">
+        <h2 class="auth-title">Bienvenue.</h2>
+        <p class="auth-subtitle">Votre nom dans l'histoire commence ici.</p>
+
+        <div class="form-group">
+          <label class="form-label">Pseudo public *</label>
+          <input type="text" class="form-input" id="pseudo" placeholder="ex: marie_author" autocomplete="username">
+          <div class="form-error" id="err-pseudo">Pseudo requis (3-50 caractères, lettres/chiffres/_/-)</div>
+          <div class="form-hint">Visible par tous. Choisissez votre nom d'auteur.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Adresse email *</label>
+          <input type="email" class="form-input" id="email" placeholder="votre@email.com" autocomplete="email">
+          <div class="form-error" id="err-email">Email invalide.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mot de passe *</label>
+          <input type="password" class="form-input" id="password" placeholder="Minimum 8 caractères" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <div class="pw-strength" id="pw-strength">
+            <div class="pw-bars">
+              <div class="pw-bar" id="pb1"></div>
+              <div class="pw-bar" id="pb2"></div>
+              <div class="pw-bar" id="pb3"></div>
+              <div class="pw-bar" id="pb4"></div>
+            </div>
+            <span class="pw-label" id="pw-label">Trop court</span>
+          </div>
+          <div class="form-error" id="err-password">Min. 8 caractères, 1 majuscule, 1 chiffre.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirmer le mot de passe *</label>
+          <input type="password" class="form-input" id="password2" placeholder="Répéter le mot de passe" autocomplete="new-password">
+          <div class="form-error" id="err-password2">Les mots de passe ne correspondent pas.</div>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" class="form-checkbox" id="charte">
+          <label class="checkbox-label" for="charte">
+            J'accepte la <a href="#">Charte LIBRUM</a> et les <a href="#">Conditions d'utilisation</a>. Je comprends que la publication est gratuite et que mes droits d'auteur sont préservés.
+          </label>
+        </div>
+        <div class="form-error" id="err-charte">Vous devez accepter la charte pour continuer.</div>
+
+        <button class="btn-submit" onclick="goStep2()">
+          Continuer
+          <div class="loading"><div class="spinner"></div></div>
+        </button>
+      </div>
+
+      <!-- STEP 2 : Email vérification -->
+      <div class="form-section" id="section-2">
+        <h2 class="auth-title">Vérifiez votre email.</h2>
+        <p class="auth-subtitle">Un lien de confirmation vous a été envoyé.</p>
+
+        <div style="background:white;border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;border-left:4px solid var(--gold);">
+          <div style="font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">Email envoyé à</div>
+          <div style="font-size:1rem;color:var(--ink);font-weight:500;" id="email-display"></div>
+        </div>
+
+        <p style="font-size:0.88rem;line-height:1.8;color:var(--text-muted);margin-bottom:1.5rem;">
+          Cliquez sur le lien dans l'email pour activer votre compte. Vérifiez vos spams si nécessaire.
+        </p>
+
+        <button class="btn-submit" style="background:white;color:var(--ink);border:1.5px solid var(--border);" onclick="simulateEmailVerified()">
+          Simuler la vérification (dev)
+        </button>
+
+        <div class="auth-divider" style="margin:1rem 0;">ou</div>
+
+        <p style="font-size:0.82rem;text-align:center;color:var(--text-muted);">
+          Pas reçu ? <span class="resend-link" onclick="resendEmail()">Renvoyer l'email</span>
+        </p>
+      </div>
+
+      <!-- STEP 3 : Téléphone -->
+      <div class="form-section" id="section-3">
+        <h2 class="auth-title">Votre numéro.</h2>
+        <p class="auth-subtitle">Protection anti-fraude. Un compte par numéro.</p>
+
+        <div class="form-group">
+          <label class="form-label">Numéro de téléphone *</label>
+          <div class="phone-group">
+            <select class="phone-prefix" id="phone-prefix">
+              <option value="+33">🇫🇷 +33</option>
+              <option value="+213">🇩🇿 +213</option>
+              <option value="+212">🇲🇦 +212</option>
+              <option value="+216">🇹🇳 +216</option>
+              <option value="+221">🇸🇳 +221</option>
+              <option value="+234">🇳🇬 +234</option>
+              <option value="+225">🇨🇮 +225</option>
+              <option value="+237">🇨🇲 +237</option>
+              <option value="+32">🇧🇪 +32</option>
+              <option value="+41">🇨🇭 +41</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+34">🇪🇸 +34</option>
+              <option value="+49">🇩🇪 +49</option>
+              <option value="+55">🇧🇷 +55</option>
+              <option value="+7">🇷🇺 +7</option>
+            </select>
+            <input type="tel" class="form-input" id="phone" placeholder="6 12 34 56 78" style="flex:1;">
+          </div>
+          <div class="form-error" id="err-phone">Numéro invalide.</div>
+          <div class="form-hint">Utilisé uniquement pour la vérification anti-fraude. Jamais partagé.</div>
+        </div>
+
+        <button class="btn-submit" onclick="sendSMS()">
+          Recevoir le code SMS
+          <div class="loading"><div class="spinner"></div></div>
+        </button>
+      </div>
+
+      <!-- STEP 3b : Code SMS -->
+      <div class="form-section" id="section-3b">
+        <h2 class="auth-title">Code reçu ?</h2>
+        <p class="auth-subtitle">Entrez le code à 6 chiffres envoyé par SMS.</p>
+
+        <div class="code-inputs" id="code-inputs">
+          <input type="text" class="code-input" maxlength="1" oninput="codeInput(this,0)">
+          <input type="text" class="code-input" maxlength="1" oninput="codeInput(this,1)">
+          <input type="text" class="code-input" maxlength="1" oninput="codeInput(this,2)">
+          <input type="text" class="code-input" maxlength="1" oninput="codeInput(this,3)">
+          <input type="text" class="code-input" maxlength="1" oninput="codeInput(this,4)">
+          <input type="text" class="code-input" maxlength="1" oninput="codeInput(this,5)">
+        </div>
+
+        <div class="form-error" id="err-code" style="margin-bottom:1rem;">Code invalide ou expiré.</div>
+
+        <button class="btn-submit" id="btn-verify-code" onclick="verifyCode()">
+          Vérifier le code
+          <div class="loading"><div class="spinner"></div></div>
+        </button>
+
+        <p style="font-size:0.82rem;text-align:center;color:var(--text-muted);margin-top:1rem;">
+          Pas reçu ? <span class="resend-link" onclick="goStep3()">Renvoyer</span>
+        </p>
+      </div>
+
+      <!-- STEP 4 : Succès -->
+      <div class="form-section" id="section-4">
+        <div class="success-box show">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 class="auth-title" style="margin-bottom:0.5rem;">Bienvenue, auteur.</h2>
+          <p class="auth-subtitle">Votre compte est actif.</p>
+          <p style="font-size:0.88rem;line-height:1.8;color:var(--text-muted);margin:1.5rem 0;">
+            Votre odyssée littéraire commence maintenant. Publiez votre première œuvre, rejoignez la communauté, et peut-être — votre livre sera imprimé.
+          </p>
+          <a href="editor.html" class="btn-submit" style="display:block;text-decoration:none;text-align:center;">
+            Ouvrir l'éditeur →
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /tab-register -->
+
+    <!-- ===== LOGIN ===== -->
+    <div id="tab-login" style="display:none;">
+      <h2 class="auth-title">Content de vous revoir.</h2>
+      <p class="auth-subtitle">Continuez là où vous en étiez.</p>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="login-email" placeholder="votre@email.com" autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-input" id="login-password" placeholder="Votre mot de passe" autocomplete="current-password">
+        <div class="form-error" id="err-login">Email ou mot de passe incorrect.</div>
+      </div>
+
+      <button class="btn-submit" onclick="doLogin()">
+        Se connecter
+        <div class="loading"><div class="spinner"></div></div>
+      </button>
+
+      <p style="font-size:0.82rem;text-align:center;color:var(--text-muted);margin-top:1.5rem;">
+        Pas encore de compte ?
+        <span class="resend-link" onclick="switchTab('register')">Créer le mien</span>
+      </p>
+    </div>
+
+  </div><!-- /auth-box -->
+</div><!-- /right-panel -->
+
+<script>
+const API = 'http://localhost:3001/api';
+let currentStep = 1;
+let userData = {};
+
+// ===== TAB SWITCH =====
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0 && tab==='register') || (i===1 && tab==='login'));
+  });
+  document.getElementById('tab-register').style.display = tab==='register' ? 'block' : 'none';
+  document.getElementById('tab-login').style.display = tab==='login' ? 'block' : 'none';
+}
+
+// ===== STEP NAVIGATION =====
+function setStep(step) {
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  const target = step === '3b' ? 'section-3b' : `section-${step}`;
+  document.getElementById(target).classList.add('active');
+
+  // Update dots
+  const steps = [1,2,3,4];
+  const stepNum = step === '3b' ? 3 : parseInt(step);
+  steps.forEach((s,i) => {
+    const dot = document.getElementById(`step-${s}`);
+    if (!dot) return;
+    dot.classList.remove('active','done');
+    if (s < stepNum) dot.classList.add('done');
+    else if (s === stepNum) dot.classList.add('active');
+  });
+
+  for (let i=1;i<=3;i++) {
+    const line = document.getElementById(`line-${i}`);
+    if (line) line.classList.toggle('done', i < stepNum);
+  }
+}
+
+function showError(id, show=true) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('show', show);
+}
+
+// ===== PASSWORD STRENGTH =====
+function checkStrength(pw) {
+  const el = document.getElementById('pw-strength');
+  el.classList.add('show');
+  const bars = [1,2,3,4].map(i => document.getElementById(`pb${i}`));
+  const label = document.getElementById('pw-label');
+
+  bars.forEach(b => b.className = 'pw-bar');
+
+  if (pw.length === 0) { el.classList.remove('show'); return; }
+
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+  const levels = ['weak','weak','medium','strong'];
+  const labels = ['Trop court','Faible','Moyen','Fort'];
+  const colors = ['weak','weak','medium','strong'];
+
+  for (let i=0;i<score;i++) bars[i].classList.add(colors[score-1]);
+  label.textContent = labels[score-1] || 'Trop court';
+  label.style.color = score >= 3 ? 'var(--success)' : score === 2 ? 'var(--gold)' : 'var(--error)';
+}
+
+// ===== STEP 1 → 2 =====
+async function goStep2() {
+  const pseudo = document.getElementById('pseudo').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const pw = document.getElementById('password').value;
+  const pw2 = document.getElementById('password2').value;
+  const charte = document.getElementById('charte').checked;
+
+  let valid = true;
+
+  if (!pseudo || !/^[a-zA-Z0-9_-]{3,50}$/.test(pseudo)) {
+    showError('err-pseudo'); valid = false;
+  } else showError('err-pseudo', false);
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showError('err-email'); valid = false;
+  } else showError('err-email', false);
+
+  if (!pw || pw.length < 8 || !/[A-Z]/.test(pw) || !/[0-9]/.test(pw)) {
+    showError('err-password'); valid = false;
+  } else showError('err-password', false);
+
+  if (pw !== pw2) {
+    showError('err-password2'); valid = false;
+  } else showError('err-password2', false);
+
+  if (!charte) {
+    showError('err-charte'); valid = false;
+  } else showError('err-charte', false);
+
+  if (!valid) return;
+
+  userData = { pseudo, email, password: pw };
+
+  const btn = event.target.closest('button');
+  btn.classList.add('loading-state');
+
+  try {
+    // En dev : simuler l'appel
+    await new Promise(r => setTimeout(r, 800));
+    // const res = await fetch(`${API}/auth/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(userData) });
+    document.getElementById('email-display').textContent = email;
+    setStep(2);
+  } finally {
+    btn.classList.remove('loading-state');
+  }
+}
+
+// ===== EMAIL VERIFIED (simulation) =====
+function simulateEmailVerified() { setStep(3); }
+
+function resendEmail() {
+  const link = event.target;
+  link.textContent = 'Email renvoyé ✓';
+  link.style.color = 'var(--success)';
+  setTimeout(() => { link.textContent = 'Renvoyer l\'email'; link.style.color = ''; }, 3000);
+}
+
+// ===== SEND SMS =====
+async function sendSMS() {
+  const phone = document.getElementById('phone').value.trim();
+  const prefix = document.getElementById('phone-prefix').value;
+  if (!phone || phone.length < 6) { showError('err-phone'); return; }
+  showError('err-phone', false);
+
+  const btn = event.target.closest('button');
+  btn.classList.add('loading-state');
+  await new Promise(r => setTimeout(r, 700));
+  btn.classList.remove('loading-state');
+
+  userData.phone = prefix + phone;
+  setStep('3b');
+  setTimeout(() => document.querySelector('.code-input').focus(), 100);
+}
+
+function goStep3() { setStep(3); }
+
+// ===== CODE INPUT =====
+function codeInput(el, idx) {
+  el.classList.toggle('filled', el.value.length > 0);
+  if (el.value.length === 1) {
+    const inputs = document.querySelectorAll('.code-input');
+    if (idx < 5) inputs[idx+1].focus();
+    else checkAutoVerify();
+  }
+}
+
+function checkAutoVerify() {
+  const vals = [...document.querySelectorAll('.code-input')].map(i => i.value);
+  if (vals.every(v => v.length === 1)) verifyCode();
+}
+
+async function verifyCode() {
+  const code = [...document.querySelectorAll('.code-input')].map(i => i.value).join('');
+  if (code.length < 6) return;
+
+  const btn = document.getElementById('btn-verify-code');
+  btn.classList.add('loading-state');
+  await new Promise(r => setTimeout(r, 800));
+  btn.classList.remove('loading-state');
+
+  // Simulation : n'importe quel code 6 chiffres valide
+  showError('err-code', false);
+  setStep(4);
+}
+
+// ===== LOGIN =====
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-password').value;
+
+  const btn = event.target.closest('button');
+  btn.classList.add('loading-state');
+
+  try {
+    await new Promise(r => setTimeout(r, 800));
+    // const res = await fetch(`${API}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password:pw}) });
+    // if (!res.ok) { showError('err-login'); return; }
+    showError('err-login', false);
+    window.location.href = 'dashboard.html';
+  } finally {
+    btn.classList.remove('loading-state');
+  }
+}
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('tab-register').style.display !== 'none') {
+      if (currentStep === 1) goStep2();
+    }
+  }
+});
+</script>
+</body>
+</html>
