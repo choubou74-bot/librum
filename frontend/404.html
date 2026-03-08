@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Page introuvable</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cinzel',serif;background:#0e0c09;color:#f9f4ec;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;}
+.logo{font-size:1.1rem;font-weight:700;letter-spacing:0.2em;margin-bottom:4rem;color:#f9f4ec;}
+.logo span{color:#b8972a;}
+.num{font-size:8rem;font-weight:700;color:#b8972a;line-height:1;margin-bottom:1rem;letter-spacing:0.05em;}
+.title{font-size:1.4rem;font-weight:600;letter-spacing:0.1em;margin-bottom:1rem;}
+.sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;color:rgba(249,244,236,0.45);margin-bottom:3rem;line-height:1.7;}
+.links{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;}
+.btn-home{padding:0.7rem 2rem;background:#b8972a;color:#0e0c09;font-family:'Cinzel',serif;font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-decoration:none;transition:background 0.2s;}
+.btn-home:hover{background:#d4b04a;}
+.btn-ghost{padding:0.65rem 1.5rem;border:1px solid rgba(249,244,236,0.15);color:rgba(249,244,236,0.5);font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.08em;text-decoration:none;transition:all 0.2s;}
+.btn-ghost:hover{border-color:rgba(184,151,42,0.5);color:#b8972a;}
+.grain{position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.03;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="logo">LIBR<span>UM</span></div>
+<div class="num">404</div>
+<div class="title">Page introuvable</div>
+<p class="sub">Cette page s'est perdue dans les savanes du Sénégal.<br>Ou peut-être n'a-t-elle jamais existé.</p>
+<div class="links">
+  <a href="index.html"   class="btn-home">Retour à l'accueil</a>
+  <a href="catalog.html" class="btn-ghost">Parcourir le catalogue</a>
+  <a href="editor.html"  class="btn-ghost">Écrire une œuvre</a>
+</div>
+</body>
+</html>

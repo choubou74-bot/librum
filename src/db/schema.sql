@@ -129,8 +129,10 @@ CREATE TABLE works (
   view_count          INTEGER DEFAULT 0,
 
   -- Cagnotte
-  cagnotte_amount     DECIMAL(10,2) DEFAULT 0.00,
-  cagnotte_threshold  DECIMAL(10,2),
+  cagnotte_pepites    BIGINT DEFAULT 0,
+  -- seuil calculé dynamiquement via vote_count + LC.getTier()
+  -- cagnotte_threshold supprimé v2 — seuil progressif
+  cagnotte_pepites_cache BIGINT DEFAULT 0,
   cagnotte_donors     INTEGER DEFAULT 0,
   is_printed          BOOLEAN DEFAULT FALSE,
   printed_at          TIMESTAMP,
@@ -155,7 +157,7 @@ CREATE INDEX idx_works_status ON works(status);
 CREATE INDEX idx_works_type ON works(type);
 CREATE INDEX idx_works_published ON works(published_at DESC);
 CREATE INDEX idx_works_rating ON works(avg_rating DESC);
-CREATE INDEX idx_works_cagnotte ON works(cagnotte_amount DESC);
+CREATE INDEX idx_works_cagnotte ON works(cagnotte_pepites DESC);
 CREATE INDEX idx_works_title_trgm ON works USING GIN (title gin_trgm_ops);
 CREATE INDEX idx_works_description_trgm ON works USING GIN (description gin_trgm_ops);
 
@@ -197,7 +199,8 @@ CREATE TABLE donations (
   id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id             UUID REFERENCES users(id) ON DELETE SET NULL,
   work_id             UUID NOT NULL REFERENCES works(id) ON DELETE RESTRICT,
-  amount              DECIMAL(10,2) NOT NULL CHECK (amount >= 0.50),
+  amount_eur          DECIMAL(10,2) NOT NULL CHECK (amount_eur >= 0.10),
+  amount_pepites      BIGINT NOT NULL CHECK (amount_pepites >= 1),
   currency            VARCHAR(3) DEFAULT 'EUR',
   stripe_payment_id   VARCHAR(255) UNIQUE,
   stripe_client_secret VARCHAR(255),
@@ -303,7 +306,10 @@ CREATE TABLE book_of_gold (
   category        work_type NOT NULL,
   final_rating    DECIMAL(3,2),
   vote_count      INTEGER,
-  cagnotte_total  DECIMAL(10,2),
+  cagnotte_pepites BIGINT DEFAULT 0,
+  tier_level      SMALLINT DEFAULT 1,
+  tirage          INTEGER DEFAULT 300,
+  cagnotte_total  DECIMAL(10,2), -- deprecated, gardé pour compat
   author_quote    TEXT,
   printed_at      TIMESTAMP,
   created_at      TIMESTAMP DEFAULT NOW(),
@@ -329,10 +335,11 @@ CREATE INDEX idx_notif_user ON notifications(user_id, read_at);
 -- TABLE: follows (abonnements auteurs)
 -- ============================================================
 CREATE TABLE follows (
-  follower_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  followed_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at  TIMESTAMP DEFAULT NOW(),
-  PRIMARY KEY (follower_id, followed_id)
+  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  follower_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  following_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at   TIMESTAMP DEFAULT NOW(),
+  UNIQUE (follower_id, following_id)
 );
 
 -- ============================================================
@@ -374,7 +381,7 @@ CREATE VIEW v_catalog AS
 SELECT
   w.id, w.title, w.type, w.genre, w.description, w.cover_url,
   w.language, w.word_count, w.avg_rating, w.vote_count,
-  w.cagnotte_amount, w.cagnotte_threshold, w.cagnotte_donors,
+  w.cagnotte_pepites, w.cagnotte_donors,
   w.is_printed, w.published_at, w.content_warnings, w.is_adult_content,
   w.tags, w.reading_time_min,
   u.pseudo AS author_pseudo, u.avatar_url AS author_avatar,
@@ -391,7 +398,7 @@ SELECT
   w.id, w.title, w.author_id,
   u.pseudo AS author_pseudo,
   w.avg_rating, w.vote_count,
-  w.cagnotte_amount, w.cagnotte_threshold,
+  w.cagnotte_pepites,
   RANK() OVER (PARTITION BY w.type ORDER BY w.avg_rating DESC, w.vote_count DESC) AS rank_in_category
 FROM works w
 JOIN users u ON w.author_id = u.id
@@ -433,7 +440,7 @@ BEGIN
   IF NEW.status = 'confirmed' AND (OLD.status IS NULL OR OLD.status != 'confirmed') THEN
     UPDATE works
     SET
-      cagnotte_amount = cagnotte_amount + NEW.amount,
+      cagnotte_pepites = cagnotte_pepites + (NEW.amount_pepites),
       cagnotte_donors = cagnotte_donors + 1,
       updated_at = NOW()
     WHERE id = NEW.work_id;
@@ -441,7 +448,7 @@ BEGIN
   IF NEW.status = 'refunded' AND OLD.status = 'confirmed' THEN
     UPDATE works
     SET
-      cagnotte_amount = GREATEST(0, cagnotte_amount - NEW.amount),
+      cagnotte_pepites = GREATEST(0, cagnotte_pepites - NEW.amount_pepites),
       cagnotte_donors = GREATEST(0, cagnotte_donors - 1),
       updated_at = NOW()
     WHERE id = NEW.work_id;
@@ -461,3 +468,53 @@ RETURNS VOID AS $$
   SET votes_remaining = 5, last_vote_reset = CURRENT_DATE
   WHERE last_vote_reset < date_trunc('month', CURRENT_DATE);
 $$ LANGUAGE SQL;
+
+-- ============================================================
+-- TABLE: reading_progress (suivi lecture pour éligibilité vote)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS reading_progress (
+  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  work_id      UUID NOT NULL REFERENCES works(id) ON DELETE CASCADE,
+  progress_pct SMALLINT DEFAULT 0 CHECK (progress_pct BETWEEN 0 AND 100),
+  last_seen_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (user_id, work_id)
+);
+
+-- ============================================================
+-- TABLE: follows
+-- ============================================================
+CREATE TABLE IF NOT EXISTS follows (
+  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  follower_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  following_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at   TIMESTAMP DEFAULT NOW(),
+  UNIQUE (follower_id, following_id)
+);
+
+-- ============================================================
+-- TABLE: pepites_log (historique gains/dépenses pépites)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS pepites_log (
+  id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  amount     INTEGER NOT NULL,
+  reason     VARCHAR(100) NOT NULL,  -- 'publish','vote','receive_vote','referral','donation'
+  ref_id     UUID,                   -- id de l'œuvre ou du don concerné
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Colonne pepites_balance si absente
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pepites_balance BIGINT DEFAULT 0;
+
+-- UNIQUE sur work_id dans book_of_gold (une œuvre = une entrée)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'book_of_gold_work_unique') THEN
+    ALTER TABLE book_of_gold ADD CONSTRAINT book_of_gold_work_unique UNIQUE (work_id);
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_reading_progress_user ON reading_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_follows_follower       ON follows(follower_id);
+CREATE INDEX IF NOT EXISTS idx_follows_following      ON follows(following_id);
+CREATE INDEX IF NOT EXISTS idx_pepites_log_user       ON pepites_log(user_id);

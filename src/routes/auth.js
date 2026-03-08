@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const { body, validationResult } = require('express-validator');
-const { query, queryOne, withTransaction } = require('../db');
+const { query, queryOne, queryMany, withTransaction } = require('../db');
 const { generateAccessToken, generateRefreshToken, authenticate } = require('../middleware/auth');
 
 // ============================================================
@@ -291,12 +291,12 @@ router.get('/me', authenticate, async (req, res) => {
   );
 
   // Badges
-  const badges = await query(
+  const badges = await queryMany(
     'SELECT badge_type, awarded_at FROM badges WHERE user_id = $1 ORDER BY awarded_at DESC',
     [req.user.id]
   );
 
-  res.json({ ...user, badges: badges.rows });
+  res.json({ ...user, badges });
 });
 
 // ============================================================

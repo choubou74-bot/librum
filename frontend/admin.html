@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBRUM — Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="currency.js"></script>
+<style>
+:root{--ink:#0e0c09;--parchment:#f9f4ec;--gold:#b8972a;--gold-light:#d4b04a;--mist:#e8e2d8;--bg:#ede8df;--text:#2a2520;--text-muted:#7a7068;--border:#ddd8cf;--success:#1a6b3a;--error:#c0392b;--warn:#d4821a;--sidebar-w:220px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:#0a0806;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+.sb-logo{padding:1.2rem;font-family:'Cinzel',serif;font-size:0.95rem;font-weight:700;color:var(--parchment);letter-spacing:0.15em;border-bottom:1px solid rgba(255,255,255,0.05);}
+.sb-logo span{color:var(--gold);}
+.sb-admin-badge{padding:0.5rem 1.2rem;font-size:0.62rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--error);background:rgba(192,57,43,0.08);border-bottom:1px solid rgba(192,57,43,0.12);}
+.sb-nav{flex:1;overflow-y:auto;padding:0.5rem 0;}
+.sb-section{font-size:0.58rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.18);padding:0.9rem 1.2rem 0.3rem;}
+.sb-item{display:flex;align-items:center;gap:0.75rem;padding:0.55rem 1.2rem;cursor:pointer;border-left:3px solid transparent;text-decoration:none;transition:background 0.12s;}
+.sb-item:hover{background:rgba(255,255,255,0.03);}
+.sb-item.active{background:rgba(184,151,42,0.09);border-left-color:var(--gold);}
+.sb-icon{font-size:0.85rem;width:16px;text-align:center;opacity:0.55;flex-shrink:0;}
+.sb-item.active .sb-icon{opacity:1;}
+.sb-label{font-size:0.78rem;color:rgba(255,255,255,0.45);}
+.sb-item.active .sb-label{color:rgba(255,255,255,0.88);}
+.sb-badge{margin-left:auto;background:var(--error);color:white;font-size:0.58rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:2rem 2.5rem;overflow-x:hidden;}
+.page{display:none;}
+.page.active{display:block;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.pg-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.8rem;gap:1rem;}
+.pg-title{font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;color:var(--ink);}
+.pg-sub{font-size:0.9rem;color:var(--text-muted);font-style:italic;margin-top:0.2rem;}
+
+/* Stats KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-bottom:1.5rem;}
+.kpi{background:white;border:1px solid var(--border);padding:1.2rem 1rem;border-left:4px solid var(--gold);}
+.kpi.danger{border-left-color:var(--error);}
+.kpi.warn{border-left-color:var(--warn);}
+.kpi.ok{border-left-color:var(--success);}
+.kpi-num{font-family:'Cinzel',serif;font-size:1.7rem;font-weight:700;color:var(--ink);line-height:1;}
+.kpi-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-top:0.3rem;}
+.kpi-delta{font-size:0.68rem;margin-top:0.3rem;}
+.kpi-delta.pos{color:var(--success);}
+.kpi-delta.neg{color:var(--error);}
+
+/* Card */
+.card{background:white;border:1px solid var(--border);margin-bottom:1rem;}
+.card-header{padding:0.85rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Cinzel',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);}
+.card-body{padding:1.2rem;}
+
+/* Table */
+.adm-table{width:100%;border-collapse:collapse;}
+.adm-table th{padding:0.6rem 1rem;text-align:left;font-size:0.62rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+.adm-table td{padding:0.75rem 1rem;border-bottom:1px solid rgba(221,216,207,0.4);font-size:0.8rem;vertical-align:middle;}
+.adm-table tr:last-child td{border-bottom:none;}
+.adm-table tr:hover td{background:#fdfaf5;}
+.td-actions{display:flex;gap:0.3rem;}
+.td-btn{padding:0.2rem 0.5rem;font-size:0.65rem;border:1px solid var(--border);background:white;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.td-btn:hover{border-color:var(--gold);color:var(--gold);}
+.td-btn.red:hover{border-color:var(--error);color:var(--error);}
+.td-btn.green:hover{border-color:var(--success);color:var(--success);}
+
+/* Badges statut */
+.badge{display:inline-block;padding:0.15rem 0.5rem;font-size:0.6rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;border-radius:2px;}
+.b-active  {background:rgba(26,107,58,0.1);color:var(--success);}
+.b-banned  {background:rgba(192,57,43,0.1);color:var(--error);}
+.b-pending {background:rgba(212,130,26,0.1);color:var(--warn);}
+.b-printed {background:rgba(184,151,42,0.12);color:var(--gold);}
+.b-mod     {background:rgba(59,130,246,0.1);color:#3b82f6;}
+
+/* Donation logs */
+.don-item{display:flex;align-items:center;gap:1rem;padding:0.65rem 1.2rem;border-bottom:1px solid rgba(221,216,207,0.4);font-size:0.8rem;}
+.don-item:last-child{border-bottom:none;}
+.don-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.don-dot.ok{background:var(--success);}
+.don-dot.fail{background:var(--error);}
+.don-info{flex:1;color:var(--text-muted);}
+.don-info strong{color:var(--ink);}
+.don-amount{font-family:'Cinzel',serif;font-size:0.85rem;color:var(--gold);font-weight:600;}
+.don-time{font-size:0.68rem;color:var(--text-muted);min-width:90px;text-align:right;}
+
+/* Print orders */
+.print-order{background:white;border:1px solid var(--border);padding:1.1rem 1.2rem;margin-bottom:0.7rem;display:flex;align-items:center;gap:1.5rem;}
+.po-title{font-family:'Cinzel',serif;font-size:0.85rem;font-weight:600;color:var(--ink);flex:1;}
+.po-author{font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;}
+.po-amount{font-size:0.85rem;color:var(--gold);font-weight:600;white-space:nowrap;}
+.po-tier{font-size:0.7rem;color:var(--text-muted);}
+.po-status{min-width:90px;text-align:right;}
+.btn-validate{padding:0.4rem 0.9rem;background:var(--success);color:white;border:none;font-size:0.72rem;font-weight:600;cursor:pointer;letter-spacing:0.06em;}
+.btn-validate:hover{opacity:0.85;}
+
+/* Config form */
+.cfg-group{background:white;border:1px solid var(--border);padding:1.4rem;margin-bottom:1rem;}
+.cfg-title{font-family:'Cinzel',serif;font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1.1rem;}
+.cfg-row{display:grid;grid-template-columns:200px 1fr auto;align-items:center;gap:1rem;margin-bottom:0.8rem;}
+.cfg-label{font-size:0.8rem;color:var(--text);}
+.cfg-input{padding:0.5rem 0.7rem;border:1.5px solid var(--border);font-size:0.88rem;color:var(--text);outline:none;font-family:inherit;transition:border-color 0.2s;}
+.cfg-input:focus{border-color:var(--gold);}
+.cfg-unit{font-size:0.75rem;color:var(--text-muted);white-space:nowrap;}
+.btn-save{padding:0.55rem 1.1rem;background:var(--ink);color:var(--parchment);font-family:'Cinzel',serif;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;border:none;cursor:pointer;transition:background 0.2s;}
+.btn-save:hover{background:var(--gold);color:var(--ink);}
+
+/* Bottom charts row */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-logo">LIBR<span>UM</span></div>
+  <div class="sb-admin-badge">⚡ Administration</div>
+  <nav class="sb-nav">
+    <div class="sb-section">Tableau de bord</div>
+    <a class="sb-item active" onclick="show('overview',this)"><span class="sb-icon">◈</span><span class="sb-label">Vue d'ensemble</span></a>
+    <a class="sb-item" onclick="show('users',this)"><span class="sb-icon">👥</span><span class="sb-label">Utilisateurs</span></a>
+    <a class="sb-item" onclick="show('works',this)"><span class="sb-icon">📚</span><span class="sb-label">Œuvres</span></a>
+    <a class="sb-item" onclick="show('donations',this)"><span class="sb-icon">🪙</span><span class="sb-label">Transactions</span></a>
+    <a class="sb-item" onclick="show('print',this)"><span class="sb-icon">🏅</span><span class="sb-label">Ordres d'édition</span><span class="sb-badge">2</span></a>
+    <div class="sb-section">Modération</div>
+    <a class="sb-item" onclick="show('reports',this)"><span class="sb-icon">⚑</span><span class="sb-label">Signalements</span><span class="sb-badge">7</span></a>
+    <a class="sb-item" href="moderation.html"><span class="sb-icon">⚖</span><span class="sb-label">La Chambre</span></a>
+    <div class="sb-section">Système</div>
+    <a class="sb-item" onclick="show('config',this)"><span class="sb-icon">⚙</span><span class="sb-label">Configuration</span></a>
+    <a class="sb-item" onclick="show('logs',this)"><span class="sb-icon">📋</span><span class="sb-label">Logs système</span></a>
+    <a class="sb-item" href="index.html"><span class="sb-icon">↩</span><span class="sb-label">Retour au site</span></a>
+  </nav>
+</aside>
+
+<main class="main">
+
+  <!-- VUE D'ENSEMBLE -->
+  <div class="page active" id="page-overview">
+    <div class="pg-top">
+      <div><div class="pg-title">Vue d'ensemble</div><div class="pg-sub">Tableau de bord administrateur · LIBRUM v1.0</div></div>
+      <div style="font-size:0.78rem;color:var(--text-muted);">Dernière mise à jour : <strong style="color:var(--ink);">Il y a 2 min</strong></div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi ok"><div class="kpi-num">2 847</div><div class="kpi-label">Membres actifs</div><div class="kpi-delta pos">+34 cette semaine</div></div>
+      <div class="kpi"><div class="kpi-num">1 203</div><div class="kpi-label">Œuvres publiées</div><div class="kpi-delta pos">+12 cette semaine</div></div>
+      <div class="kpi"><div class="kpi-num" id="kpi-cag">—</div><div class="kpi-label">Cagnotte totale</div><div class="kpi-delta pos">+1 200🪙 aujourd'hui</div></div>
+      <div class="kpi warn"><div class="kpi-num">7</div><div class="kpi-label">Signalements actifs</div><div class="kpi-delta neg">+3 nouvelles</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Inscriptions — 30 jours</div></div>
+        <div class="card-body"><canvas id="reg-chart" height="100"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Transactions — 30 jours</div></div>
+        <div class="card-body"><canvas id="don-chart" height="100"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Dernières inscriptions</div></div>
+      <table class="adm-table" id="recent-users-table"></table>
+    </div>
+  </div>
+
+  <!-- UTILISATEURS -->
+  <div class="page" id="page-users">
+    <div class="pg-top">
+      <div><div class="pg-title">Utilisateurs</div><div class="pg-sub">Gestion des comptes membres</div></div>
+      <input style="padding:0.5rem 0.8rem;border:1px solid var(--border);font-size:0.82rem;outline:none;width:220px;" placeholder="🔍 Rechercher…" oninput="filterUsers(this.value)">
+    </div>
+    <div class="card">
+      <table class="adm-table" id="users-table"></table>
+    </div>
+  </div>
+
+  <!-- ŒUVRES -->
+  <div class="page" id="page-works">
+    <div class="pg-top"><div><div class="pg-title">Œuvres</div><div class="pg-sub">Catalogue complet</div></div></div>
+    <div class="card">
+      <table class="adm-table" id="works-table"></table>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="page" id="page-donations">
+    <div class="pg-top">
+      <div><div class="pg-title">Transactions</div><div class="pg-sub">Historique des dons en pépites</div></div>
+      <div style="font-family:'Cinzel',serif;font-size:1.3rem;font-weight:700;color:var(--gold);" id="total-don-display">—</div>
+    </div>
+    <div class="card">
+      <div id="don-list"></div>
+    </div>
+  </div>
+
+  <!-- ORDRES D'ÉDITION -->
+  <div class="page" id="page-print">
+    <div class="pg-top"><div><div class="pg-title">Ordres d'édition</div><div class="pg-sub">Œuvres ayant atteint leur seuil de cagnotte</div></div></div>
+    <div id="print-orders-list"></div>
+  </div>
+
+  <!-- SIGNALEMENTS -->
+  <div class="page" id="page-reports">
+    <div class="pg-top"><div><div class="pg-title">Signalements</div><div class="pg-sub">7 en attente de traitement</div></div></div>
+    <div class="card">
+      <table class="adm-table" id="reports-table"></table>
+    </div>
+  </div>
+
+  <!-- CONFIGURATION -->
+  <div class="page" id="page-config">
+    <div class="pg-top"><div><div class="pg-title">Configuration</div><div class="pg-sub">Paramètres système LIBRUM</div></div></div>
+
+    <div class="cfg-group">
+      <div class="cfg-title">Système monétaire</div>
+      <div class="cfg-row"><label class="cfg-label">1 Pépite =</label><input class="cfg-input" value="0.10" style="width:100px;"><span class="cfg-unit">€ (ne pas modifier après lancement)</span></div>
+      <div class="cfg-row"><label class="cfg-label">1 Lingot =</label><input class="cfg-input" value="10000" style="width:100px;"><span class="cfg-unit">Pépites = 1 000€</span></div>
+    </div>
+
+    <div class="cfg-group">
+      <div class="cfg-title">Seuils par niveau (pépites)</div>
+      <div class="cfg-row"><label class="cfg-label">🌱 Niveau 1 — 300 ex.</label><input class="cfg-input" value="15000" style="width:120px;"><span class="cfg-unit">pépites = 1 500€</span></div>
+      <div class="cfg-row"><label class="cfg-label">📖 Niveau 2 — 500 ex.</label><input class="cfg-input" value="25000" style="width:120px;"><span class="cfg-unit">pépites = 2 500€</span></div>
+      <div class="cfg-row"><label class="cfg-label">⭐ Niveau 3 — 1 000 ex.</label><input class="cfg-input" value="35000" style="width:120px;"><span class="cfg-unit">pépites = 3 500€</span></div>
+      <div class="cfg-row"><label class="cfg-label">🔥 Niveau 4 — 2 000 ex.</label><input class="cfg-input" value="60000" style="width:120px;"><span class="cfg-unit">pépites = 6 000€</span></div>
+      <div class="cfg-row"><label class="cfg-label">🏆 Niveau 5 — 5 000 ex.</label><input class="cfg-input" value="120000" style="width:120px;"><span class="cfg-unit">pépites = 12 000€</span></div>
+    </div>
+
+    <div class="cfg-group">
+      <div class="cfg-title">Règles votes & communauté</div>
+      <div class="cfg-row"><label class="cfg-label">Votes par membre / mois</label><input class="cfg-input" value="5" style="width:80px;"><span class="cfg-unit">votes</span></div>
+      <div class="cfg-row"><label class="cfg-label">Délai avant vote</label><input class="cfg-input" value="7" style="width:80px;"><span class="cfg-unit">jours après inscription</span></div>
+      <div class="cfg-row"><label class="cfg-label">Lecture minimum avant vote</label><input class="cfg-input" value="30" style="width:80px;"><span class="cfg-unit">% de l'œuvre</span></div>
+      <div class="cfg-row"><label class="cfg-label">Signalements auto-review</label><input class="cfg-input" value="5" style="width:80px;"><span class="cfg-unit">signalements → revue auto</span></div>
+    </div>
+
+    <div class="cfg-group">
+      <div class="cfg-title">Partenaires d'impression</div>
+      <div class="cfg-row"><label class="cfg-label">Imprimeur principal</label>
+        <select class="cfg-input" style="width:200px;"><option>PrintOclock</option><option>Kalikrea</option><option>Offset 5</option><option>BoD</option></select>
+        <span class="cfg-unit">Prioritaire</span>
+      </div>
+      <div class="cfg-row"><label class="cfg-label">Imprimeur fallback</label>
+        <select class="cfg-input" style="width:200px;"><option>BoD</option><option>Lulu</option></select>
+        <span class="cfg-unit">Si indisponible</span>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="alert('Configuration sauvegardée.')">Sauvegarder la configuration</button>
+  </div>
+
+  <!-- LOGS -->
+  <div class="page" id="page-logs">
+    <div class="pg-top"><div><div class="pg-title">Logs système</div><div class="pg-sub">Audit trail — 48h</div></div></div>
+    <div class="card">
+      <div class="card-body" style="font-family:monospace;font-size:0.75rem;line-height:1.8;color:var(--text-muted);max-height:500px;overflow-y:auto;" id="logs-content"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── NAVIGATION ──────────────────────────────────────────
+function show(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ── DONNÉES MOCK ────────────────────────────────────────
+const USERS = [
+  {id:'u1',pseudo:'ousmane_n',   name:'Ousmane Ndiaye',    level:3, st:'active', joined:'15 jan. 2026', works:3, rep:4.9},
+  {id:'u2',pseudo:'farida_z',    name:'Farida Zaïdani',    level:2, st:'active', joined:'3 jan. 2026',  works:1, rep:4.8},
+  {id:'u3',pseudo:'pierre_m',    name:'Pierre Morin',      level:2, st:'active', joined:'10 déc. 2025', works:0, rep:0},
+  {id:'u4',pseudo:'spammer_99',  name:'—',                 level:0, st:'banned', joined:'1 mar. 2026',  works:0, rep:0},
+  {id:'u5',pseudo:'aminata_d',   name:'Aminata Diallo',    level:1, st:'active', joined:'20 jan. 2026', works:2, rep:4.5},
+  {id:'u6',pseudo:'chen_w',      name:'Chen Wei',          level:3, st:'active', joined:'5 nov. 2025',  works:1, rep:4.3},
+  {id:'u7',pseudo:'zeynab_k',    name:'Zeynab Kaddouri',   level:1, st:'active', joined:'28 fév. 2026', works:0, rep:0},
+  {id:'u8',pseudo:'mod_karima',  name:'Karima Bouzid',     level:2, st:'mod',    joined:'1 sep. 2025',  works:0, rep:0},
+];
+
+const WORKS_ADM = [
+  {id:'11', title:'Le Dernier Griot',              author:'ousmane_n', type:'Roman',    st:'published', votes:234, cag:11340, thr:15000},
+  {id:'w2', title:'Contes du Baobab',              author:'ousmane_n', type:'Nouvelle', st:'published', votes:156, cag:6200,  thr:15000},
+  {id:'w3', title:'Voix d\'os et de sel',          author:'nadia_m',   type:'Poésie',   st:'printed',   votes:612, cag:35000, thr:35000},
+  {id:'w4', title:'Critique raison numérique',     author:'ibrahima_d',type:'Essai',    st:'published', votes:203, cag:22500, thr:25000},
+  {id:'w5', title:'[SPAM — illicite]',             author:'spammer_99',type:'—',        st:'banned',    votes:0,   cag:0,     thr:0},
+];
+
+const DONATIONS = [
+  {ok:true,  from:'farida_z',  to:'Le Dernier Griot', pep:250,  stripe:'pi_abc123', ts:'07/03/2026 14:32'},
+  {ok:true,  from:'pierre_m',  to:'Le Dernier Griot', pep:100,  stripe:'pi_def456', ts:'07/03/2026 11:15'},
+  {ok:false, from:'unknown',   to:'—',                pep:0,    stripe:'pi_fail01', ts:'06/03/2026 22:48'},
+  {ok:true,  from:'aminata_d', to:'Voix d\'os et de sel', pep:500, stripe:'pi_ghi789', ts:'06/03/2026 18:04'},
+  {ok:true,  from:'chen_w',    to:'Le Dernier Griot', pep:150,  stripe:'pi_jkl012', ts:'05/03/2026 09:21'},
+];
+
+const PRINT_ORDERS = [
+  {id:'w3', title:'Voix d\'os et de sel', author:'nadia_m', cag:35000, thr:35000, tier:3, tirage:1000, printer:'PrintOclock', status:'pending'},
+  {id:'w6', title:'Miel et cendres',      author:'farida_z', cag:25000, thr:25000, tier:2, tirage:500,  printer:'Kalikrea',    status:'pending'},
+];
+
+const REPORTS = [
+  {id:'r1', type:'Plagiat',          target:'Atlas des oubliés',   reporter:'aminata_d', date:'06/03/2026', priority:'high'},
+  {id:'r2', type:'Contenu illicite', target:'[titre supprimé]',    reporter:'pierre_m',  date:'07/03/2026', priority:'high'},
+  {id:'r3', type:'Spam',             target:'profil spammer_99',   reporter:'ousmane_n', date:'07/03/2026', priority:'med'},
+  {id:'r4', type:'Discours haineux', target:'commentaire #4521',   reporter:'farida_z',  date:'06/03/2026', priority:'high'},
+  {id:'r5', type:'Plagiat',          target:'Monsoon Dreams',      reporter:'zeynab_k',  date:'05/03/2026', priority:'low'},
+  {id:'r6', type:'Spam',             target:'profil carlos_v',     reporter:'mod_karima',date:'04/03/2026', priority:'med'},
+  {id:'r7', type:'Autre',            target:'Commentaire #7832',   reporter:'chen_w',    date:'03/03/2026', priority:'low'},
+];
+
+// ── INIT ────────────────────────────────────────────────
+function init() {
+  // KPI cagnotte total
+  const totalPep = DONATIONS.filter(d=>d.ok).reduce((s,d)=>s+d.pep,0) * 120; // mock total
+  document.getElementById('kpi-cag').textContent = LC.format(totalPep + 384700, 'compact');
+  document.getElementById('total-don-display').textContent = LC.format(totalPep + 384700, 'compact');
+
+  renderRecentUsers();
+  renderUsersTable();
+  renderWorksTable();
+  renderDonations();
+  renderPrintOrders();
+  renderReports();
+  renderLogs();
+  drawCharts();
+}
+
+function renderRecentUsers() {
+  const t = document.getElementById('recent-users-table');
+  t.innerHTML = `<thead><tr><th>Pseudo</th><th>Statut</th><th>Niveau</th><th>Inscription</th><th>Actions</th></tr></thead><tbody>` +
+  USERS.slice(0,5).map(u => `<tr>
+    <td><strong>${u.pseudo}</strong></td>
+    <td>${u.st==='active'?'<span class="badge b-active">Actif</span>':u.st==='banned'?'<span class="badge b-banned">Banni</span>':'<span class="badge b-mod">Modérateur</span>'}</td>
+    <td>Niv. ${u.level}</td>
+    <td>${u.joined}</td>
+    <td><div class="td-actions">
+      <button class="td-btn" onclick="location.href='profile.html?pseudo=${u.pseudo}'">Voir</button>
+      <button class="td-btn red" onclick="if(confirm('Bannir ${u.pseudo} ?'))alert('Banni.')">Bannir</button>
+    </div></td>
+  </tr>`).join('') + '</tbody>';
+}
+
+function renderUsersTable(filter='') {
+  const rows = USERS.filter(u => !filter || u.pseudo.includes(filter) || u.name.toLowerCase().includes(filter.toLowerCase()));
+  document.getElementById('users-table').innerHTML =
+  `<thead><tr><th>Pseudo</th><th>Nom</th><th>Niveau</th><th>Statut</th><th>Œuvres</th><th>Inscription</th><th>Actions</th></tr></thead><tbody>` +
+  rows.map(u => `<tr>
+    <td><a href="profile.html?pseudo=${u.pseudo}" style="color:var(--ink);font-weight:500;">${u.pseudo}</a></td>
+    <td>${u.name}</td>
+    <td>Niv. ${u.level}</td>
+    <td>${u.st==='active'?'<span class="badge b-active">Actif</span>':u.st==='banned'?'<span class="badge b-banned">Banni</span>':'<span class="badge b-mod">Modérateur</span>'}</td>
+    <td>${u.works}</td>
+    <td>${u.joined}</td>
+    <td><div class="td-actions">
+      <button class="td-btn green" onclick="alert('Email envoyé.')">Email</button>
+      <button class="td-btn" onclick="alert('Niveau modifié.')">Niveau</button>
+      <button class="td-btn red" onclick="if(confirm('Bannir ?'))this.closest('tr').querySelector('.badge').className='badge b-banned';this.closest('tr').querySelector('.badge').textContent='Banni'">Bannir</button>
+    </div></td>
+  </tr>`).join('') + '</tbody>';
+}
+
+function filterUsers(v) { renderUsersTable(v); }
+
+function renderWorksTable() {
+  document.getElementById('works-table').innerHTML =
+  `<thead><tr><th>Titre</th><th>Auteur</th><th>Type</th><th>Statut</th><th>Votes</th><th>Cagnotte</th><th>Actions</th></tr></thead><tbody>` +
+  WORKS_ADM.map(w => {
+    const pct = w.thr > 0 ? Math.round(w.cag/w.thr*100) : 0;
+    const stBadge = w.st==='published'?'<span class="badge b-active">Publié</span>':w.st==='printed'?'<span class="badge b-printed">Édité</span>':'<span class="badge b-banned">Banni</span>';
+    return `<tr>
+      <td><a href="work.html?id=${w.id}" style="color:var(--ink);font-weight:500;">${w.title}</a></td>
+      <td>${w.author}</td>
+      <td>${w.type}</td>
+      <td>${stBadge}</td>
+      <td>${w.votes}</td>
+      <td><span style="font-size:0.78rem;">${w.cag>0?w.cag.toLocaleString('fr')+'🪙 ('+pct+'%)':'—'}</span></td>
+      <td><div class="td-actions">
+        <button class="td-btn" onclick="location.href='work.html?id=${w.id}'">Voir</button>
+        <button class="td-btn red" onclick="if(confirm('Retirer de publication ?'))alert('Dépublié.')">Dépublier</button>
+      </div></td>
+    </tr>`;
+  }).join('') + '</tbody>';
+}
+
+function renderDonations() {
+  document.getElementById('don-list').innerHTML = DONATIONS.map(d => `
+    <div class="don-item">
+      <div class="don-dot ${d.ok?'ok':'fail'}"></div>
+      <div class="don-info">${d.ok?`<strong>${d.from}</strong> → <em>${d.to}</em>` : `<strong>Paiement échoué</strong> — ${d.stripe}`}</div>
+      <div class="don-amount">${d.ok?d.pep.toLocaleString('fr')+'🪙':'—'}</div>
+      <div style="font-size:0.65rem;color:var(--text-muted);">${d.stripe}</div>
+      <div class="don-time">${d.ts}</div>
+    </div>`).join('');
+}
+
+function renderPrintOrders() {
+  document.getElementById('print-orders-list').innerHTML = PRINT_ORDERS.map(p => `
+    <div class="print-order">
+      <div>
+        <div class="po-title">${p.title}</div>
+        <div class="po-author">par ${p.author} · ${LC.TIERS[p.tier-1]?.icon} Niv.${p.tier} · ${p.tirage.toLocaleString('fr')} exemplaires · ${p.printer}</div>
+      </div>
+      <div>
+        <div class="po-amount">${p.cag.toLocaleString('fr')}🪙</div>
+        <div class="po-tier">= ${LC.pepitesToEur(p.cag)} €</div>
+      </div>
+      <div class="po-status">
+        <button class="btn-validate" onclick="validatePrint(this,'${p.id}')">✓ Valider & Commander</button>
+      </div>
+    </div>`).join('');
+}
+
+function validatePrint(btn, id) {
+  if (!confirm(`Valider l'ordre d'impression pour l'œuvre #${id} ?\nLe fichier sera envoyé à l'imprimeur.`)) return;
+  btn.textContent = '✓ Commandé';
+  btn.style.background = 'var(--text-muted)';
+  btn.disabled = true;
+  alert('Ordre transmis à l\'imprimeur. Confirmation par email.');
+}
+
+function renderReports() {
+  const prioBadge = {high:'<span class="badge b-banned">Haute</span>',med:'<span class="badge b-pending">Moyenne</span>',low:'<span style="font-size:0.62rem;color:var(--text-muted);">Basse</span>'};
+  document.getElementById('reports-table').innerHTML =
+  `<thead><tr><th>Type</th><th>Cible</th><th>Signaleur</th><th>Date</th><th>Priorité</th><th>Actions</th></tr></thead><tbody>` +
+  REPORTS.map(r => `<tr>
+    <td><strong>${r.type}</strong></td>
+    <td>${r.target}</td>
+    <td>${r.reporter}</td>
+    <td>${r.date}</td>
+    <td>${prioBadge[r.priority]||''}</td>
+    <td><div class="td-actions">
+      <button class="td-btn green" onclick="this.closest('tr').remove();alert('Résolu.')">Résoudre</button>
+      <button class="td-btn" onclick="location.href='moderation.html'">Chambre</button>
+    </div></td>
+  </tr>`).join('') + '</tbody>';
+}
+
+function renderLogs() {
+  const logs = [
+    '[2026-03-07 14:32:01] INFO  Donation OK — farida_z → w11 — 250🪙 — pi_abc123',
+    '[2026-03-07 14:31:58] INFO  Stripe webhook received — payment_intent.succeeded',
+    '[2026-03-07 13:02:12] WARN  Rate limit hit — IP 185.x.x.x — /api/auth/login',
+    '[2026-03-07 11:15:33] INFO  Donation OK — pierre_m → w11 — 100🪙 — pi_def456',
+    '[2026-03-07 09:44:17] INFO  Work published — id:w_new — ousmane_n',
+    '[2026-03-07 08:12:04] INFO  Monthly votes reset — 2847 users updated',
+    '[2026-03-06 22:48:55] ERROR Stripe payment failed — pi_fail01 — card_declined',
+    '[2026-03-06 22:01:33] INFO  Report #r2 created — type:illicite — reporter:pierre_m',
+    '[2026-03-06 18:04:09] INFO  Donation OK — aminata_d → w3 — 500🪙 — pi_ghi789',
+    '[2026-03-06 17:32:44] INFO  User banned — spammer_99 — reason:spam — by:admin',
+    '[2026-03-06 12:00:00] INFO  Cagnotte threshold reached — w3 — Voix d\'os et de sel — 35 000🪙',
+    '[2026-03-06 12:00:01] INFO  Print order created — w3 — tier:3 — 1000 ex. — PrintOclock',
+    '[2026-03-05 09:21:18] INFO  Donation OK — chen_w → w11 — 150🪙 — pi_jkl012',
+    '[2026-03-05 03:12:01] INFO  Daily backup completed — OK',
+  ];
+  document.getElementById('logs-content').innerHTML = logs.map(l => {
+    const cls = l.includes('ERROR')?'color:var(--error)':l.includes('WARN')?'color:var(--warn)':'';
+    return `<div style="${cls}">${l}</div>`;
+  }).join('');
+}
+
+// ── CHARTS ──────────────────────────────────────────────
+function drawCharts() {
+  [
+    ['reg-chart',  [3,5,2,8,4,6,9,3,7,5,4,8,6,3,9,7,5,4,8,6,3,9,5,7,4,8,6,5,9,7]],
+    ['don-chart',  [120,340,180,560,290,410,680,230,490,350,170,620,380,240,710,430,195,580,340,490,260,830,420,310,670,390,250,740,480,610]],
+  ].forEach(([id, data]) => {
+    const c = document.getElementById(id);
+    if (!c) return;
+    const W = c.parentElement.clientWidth, H = 100;
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+    const max = Math.max(...data);
+    const step = W / (data.length - 1);
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0,'rgba(184,151,42,0.2)');
+    grad.addColorStop(1,'rgba(184,151,42,0)');
+    ctx.beginPath();
+    data.forEach((v,i)=>{ const x=i*step,y=H-(v/max)*(H-12)-6; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); ctx.strokeStyle='#b8972a'; ctx.lineWidth=2;
+    data.forEach((v,i)=>{ const x=i*step,y=H-(v/max)*(H-12)-6; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke();
+  });
+}
+
+window.addEventListener('load', () => { init(); setTimeout(drawCharts, 100); });
+window.addEventListener('resize', drawCharts);
+</script>
+</body>
+</html>
